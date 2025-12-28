@@ -1516,7 +1516,8 @@
                 updateComparisonMode(comparisonMode); // Llamar directamente para asegurar el styling
             }
 
-            document.getElementById('landing-view').classList.remove('hidden');
+            // document.getElementById('landing-view').classList.remove('hidden'); // COMENTADO: Ahora se muestra solo al hacer click
+            document.getElementById('service-selection-view').classList.remove('hidden'); // NUEVO: Mostrar pantalla inicial
             document.getElementById('initial-view').classList.add('hidden');
             document.getElementById('multicups-saga-view').classList.add('hidden'); // NEW: Cleanup saga view
             document.getElementById('results-view').classList.add('hidden');
@@ -10385,21 +10386,42 @@
         
         // === FUNCIONES DE NAVEGACIÓN (NUEVAS) ===
         function showElectricity() {
+            // Ocultar todas las vistas
             document.getElementById('service-selection-view').classList.add('hidden');
-            document.getElementById('landing-view').classList.remove('hidden');
             document.getElementById('gas-view').classList.add('hidden');
+            document.getElementById('initial-view').classList.add('hidden');
+            document.getElementById('multicups-saga-view').classList.add('hidden');
+            document.getElementById('results-view').classList.add('hidden');
+            document.getElementById('scanner-view').classList.add('hidden');
+            
+            // Mostrar vista de electricidad
+            document.getElementById('landing-view').classList.remove('hidden');
         }
         
         function showGas() {
+            // Ocultar todas las vistas
             document.getElementById('service-selection-view').classList.add('hidden');
             document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('initial-view').classList.add('hidden');
+            document.getElementById('multicups-saga-view').classList.add('hidden');
+            document.getElementById('results-view').classList.add('hidden');
+            document.getElementById('scanner-view').classList.add('hidden');
+            
+            // Mostrar vista de gas
             document.getElementById('gas-view').classList.remove('hidden');
         }
         
         function backToHome() {
-            document.getElementById('service-selection-view').classList.remove('hidden');
+            // Ocultar todas las vistas
             document.getElementById('landing-view').classList.add('hidden');
             document.getElementById('gas-view').classList.add('hidden');
+            document.getElementById('initial-view').classList.add('hidden');
+            document.getElementById('multicups-saga-view').classList.add('hidden');
+            document.getElementById('results-view').classList.add('hidden');
+            document.getElementById('scanner-view').classList.add('hidden');
+            
+            // Mostrar pantalla inicial
+            document.getElementById('service-selection-view').classList.remove('hidden');
         }
     </script>
 </body>
