@@ -10363,7 +10363,9 @@
         // Función: Seleccionar tarifa de GAS y abrir modal
         function selectGasTariff(tariff) {
             currentGasTariff = tariff;
-            document.getElementById('gas-selected-tariff').textContent = tariff;
+            // Mostrar con formato correcto (Rl1 en lugar de RL1)
+            const displayTariff = tariff.charAt(0).toUpperCase() + tariff.charAt(1).toLowerCase() + tariff.slice(2);
+            document.getElementById('gas-selected-tariff').textContent = displayTariff;
             
             // Mostrar modal
             document.getElementById('gas-manual-input-modal').classList.remove('hidden');
@@ -10373,6 +10375,8 @@
             if (gasTariffsData.length === 0) {
                 loadGasData();
             }
+            
+            console.log(`📋 Tarifa seleccionada: ${tariff} (buscará: ${tariff.toLowerCase()})`);
         }
         
         // Función: Cerrar modal
@@ -10383,41 +10387,94 @@
         
         // Función: Cargar datos del Google Sheets de GAS
         async function loadGasData() {
-            const url = `https://docs.google.com/spreadsheets/d/${GAS_SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`;
+            console.log('🔄 Cargando datos de GAS desde Google Sheets...');
+            const url = `https://docs.google.com/spreadsheets/d/${GAS_SHEET_ID}/export?format=csv&gid=0&t=${Date.now()}`;
             
             try {
                 const response = await fetch(url);
-                if (!response.ok) throw new Error('Error al cargar datos de GAS');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const text = await response.text();
+                
+                if (!text || text.length < 10) {
+                    throw new Error('El archivo CSV está vacío o no se pudo cargar');
+                }
+                
+                console.log('📥 CSV recibido, primeras 200 caracteres:', text.substring(0, 200));
+                
                 gasTariffsData = parseGasCSV(text);
-                console.log(`✅ Cargadas ${gasTariffsData.length} tarifas de GAS`);
+                
+                if (gasTariffsData.length === 0) {
+                    console.error('❌ No se pudieron parsear datos del CSV');
+                    alert('Error: No se encontraron datos en el Excel de GAS');
+                } else {
+                    console.log(`✅ Cargadas ${gasTariffsData.length} tarifas de GAS`);
+                }
             } catch (error) {
                 console.error('❌ Error al cargar datos de GAS:', error);
                 gasTariffsData = [];
+                alert('Error al cargar datos de GAS. Verifica la conexión y permisos del Excel.');
             }
         }
         
         // Función: Parsear CSV de GAS
         function parseGasCSV(csvText) {
             const lines = csvText.split('\n');
-            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            if (lines.length === 0) return [];
+            
+            // Limpiar y extraer headers
+            const headerLine = lines[0];
+            const headers = headerLine.split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            
+            console.log('📋 Headers encontrados:', headers);
+            
             const data = [];
             
             for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
+                const line = lines[i].trim();
+                if (!line) continue;
                 
-                const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+                // Parsear CSV manejando comillas
+                const values = [];
+                let currentValue = '';
+                let insideQuotes = false;
+                
+                for (let char of line) {
+                    if (char === '"') {
+                        insideQuotes = !insideQuotes;
+                    } else if (char === ',' && !insideQuotes) {
+                        values.push(currentValue.trim().replace(/^"|"$/g, ''));
+                        currentValue = '';
+                    } else {
+                        currentValue += char;
+                    }
+                }
+                values.push(currentValue.trim().replace(/^"|"$/g, ''));
+                
+                // Crear objeto
                 const row = {};
-                
                 headers.forEach((header, index) => {
                     row[header] = values[index] || '';
                 });
                 
                 // Solo agregar si tiene datos válidos
-                if (row.Name && row.P1_price) {
+                // Verificar que tenga al menos Name y P1_price
+                if (row.Name && row.P1_price && row.Tarifa) {
                     data.push(row);
+                    
+                    // Log de la primera fila para debug
+                    if (data.length === 1) {
+                        console.log('📊 Ejemplo de fila:', row);
+                    }
                 }
             }
+            
+            console.log(`✅ Parseadas ${data.length} tarifas de GAS`);
+            
+            // Mostrar las tarifas únicas encontradas
+            const uniqueTariffs = [...new Set(data.map(d => d.Tarifa))];
+            console.log('🏷️ Tarifas únicas encontradas:', uniqueTariffs);
             
             return data;
         }
@@ -10442,17 +10499,29 @@
             
             // Filtrar tarifas según modo de comparación y tarifa seleccionada
             const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked').value;
-            let filteredTariffs = gasTariffsData.filter(t => t.Tarifa === currentGasTariff);
+            
+            // Buscar en la columna "Tarifa" con comparación case-insensitive
+            let filteredTariffs = gasTariffsData.filter(t => {
+                const tariffValue = (t.Tarifa || '').toLowerCase();
+                const selectedTariff = currentGasTariff.toLowerCase();
+                return tariffValue === selectedTariff;
+            });
+            
+            console.log(`🔍 Buscando tarifas para: ${currentGasTariff}`);
+            console.log(`📊 Tarifas encontradas: ${filteredTariffs.length}`);
             
             // Aplicar filtro DRK si corresponde
             if (comparisonMode === 'drk_only' || comparisonMode === 'drk_prioritized') {
                 filteredTariffs = filteredTariffs.filter(t => 
                     t.Name && (t.Name.toLowerCase().includes('drk') || t.Name.toLowerCase().includes('direct'))
                 );
+                console.log(`📊 Después de filtro DRK: ${filteredTariffs.length}`);
             }
             
             if (filteredTariffs.length === 0) {
-                alert('No se encontraron tarifas para ' + currentGasTariff);
+                alert('No se encontraron tarifas para ' + currentGasTariff + '. Verifica que el Excel tenga datos.');
+                console.error('❌ No hay tarifas disponibles');
+                console.log('Datos cargados:', gasTariffsData);
                 return;
             }
             
