@@ -364,7 +364,7 @@
                     <p class="text-slate-500 mb-6 text-center">Selecciona la regulación de gas.</p>
                     
                     <div class="w-full space-y-4">
-                        <button onclick="alert('GAS RL1')" class="tariff-select-btn group">
+                        <button onclick="selectGasTariff('RL1')" class="tariff-select-btn group">
                             <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
                             </div>
@@ -375,7 +375,7 @@
                             <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
                         </button>
 
-                        <button onclick="alert('GAS RL2')" class="tariff-select-btn group">
+                        <button onclick="selectGasTariff('RL2')" class="tariff-select-btn group">
                             <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
                             </div>
@@ -386,7 +386,7 @@
                             <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
                         </button>
 
-                        <button onclick="alert('GAS RL3')" class="tariff-select-btn group">
+                        <button onclick="selectGasTariff('RL3')" class="tariff-select-btn group">
                             <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
                             </div>
@@ -397,7 +397,7 @@
                             <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
                         </button>
 
-                        <button onclick="alert('GAS RL4')" class="tariff-select-btn group">
+                        <button onclick="selectGasTariff('RL4')" class="tariff-select-btn group">
                             <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
                             </div>
@@ -408,7 +408,7 @@
                             <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
                         </button>
 
-                        <button onclick="alert('GAS RL5')" class="tariff-select-btn group">
+                        <button onclick="selectGasTariff('RL5')" class="tariff-select-btn group">
                             <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
                             </div>
@@ -419,7 +419,7 @@
                             <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
                         </button>
 
-                        <button onclick="alert('GAS RL6')" class="tariff-select-btn group">
+                        <button onclick="selectGasTariff('RL6')" class="tariff-select-btn group">
                             <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
                             </div>
@@ -433,6 +433,101 @@
                 </div>
             </div>
         </div> <!-- Cierre screen-gas -->
+        
+        <!-- MODAL: Entrada manual de datos GAS -->
+        <div id="gas-manual-input-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-red-500">
+                <div class="p-6">
+                    <h3 class="text-2xl font-black text-red-600 mb-2 text-center">Datos de la Factura de GAS</h3>
+                    <p class="text-sm text-slate-500 mb-4 text-center">Tarifa: <span id="gas-selected-tariff" class="font-bold text-red-600"></span></p>
+                    
+                    <div class="space-y-4">
+                        <!-- Días de facturación -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">
+                                Días de facturación
+                            </label>
+                            <input 
+                                type="number" 
+                                id="gas-dias" 
+                                placeholder="Ej: 30" 
+                                class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-red-500 focus:outline-none"
+                                min="1"
+                                step="1"
+                            >
+                        </div>
+                        
+                        <!-- kWh consumidos -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">
+                                kWh consumidos
+                            </label>
+                            <input 
+                                type="number" 
+                                id="gas-kwh" 
+                                placeholder="Ej: 250" 
+                                class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-red-500 focus:outline-none"
+                                min="0"
+                                step="0.01"
+                            >
+                        </div>
+                        
+                        <!-- Total cliente -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">
+                                Total factura actual (€)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="gas-total-cliente" 
+                                placeholder="Ej: 45.50" 
+                                class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-red-500 focus:outline-none"
+                                min="0"
+                                step="0.01"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-6">
+                        <button 
+                            onclick="closeGasModal()" 
+                            class="flex-1 px-6 py-3 bg-slate-200 text-slate-700 rounded-lg font-bold hover:bg-slate-300 transition"
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            onclick="calculateGas()" 
+                            class="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 transition"
+                        >
+                            Calcular
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PANTALLA 4: Resultados GAS -->
+        <div id="screen-gas-results" class="screen">
+            <div class="fade-in flex flex-col items-center justify-center min-h-[60vh] py-8">
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl w-full border-t-4 border-red-500">
+                    <button onclick="goToGas()" style="background:none;border:none;padding:0.5rem;margin-bottom:1rem;cursor:pointer;" class="text-sm text-slate-500 hover:text-red-600 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Volver
+                    </button>
+                    
+                    <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 shadow-inner">
+                        <span class="text-4xl">🔥</span>
+                    </div>
+                    <h2 class="text-3xl font-black text-red-600 mb-2 text-center">Resultados GAS</h2>
+                    <p class="text-slate-500 mb-6 text-center" id="gas-results-subtitle">Comparativa de tarifas</p>
+                    
+                    <!-- Contenedor de resultados -->
+                    <div id="gas-results-container" class="mt-6">
+                        <!-- Los resultados se insertarán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <!-- 2. MultiCups Saga View (Intermediate Step) -->
         <div id="multicups-saga-view" class="fade-in hidden flex flex-col items-center justify-center min-h-[60vh] py-8">
@@ -10234,6 +10329,7 @@
             document.getElementById('screen-inicio').classList.remove('active');
             document.getElementById('screen-electricidad').classList.remove('active');
             document.getElementById('screen-gas').classList.remove('active');
+            document.getElementById('screen-gas-results').classList.remove('active');
         }
 
         function goToInicio() {
@@ -10255,6 +10351,267 @@
             document.getElementById('screen-gas').classList.add('active');
             // Ocultar el modo de comparación (ya está seleccionado)
             document.getElementById('modo-comparacion-section').style.display = 'none';
+        }
+        
+        // ===== CALCULADOR DE GAS =====
+        
+        // Variables globales para GAS
+        let currentGasTariff = '';
+        let gasTariffsData = [];
+        const GAS_SHEET_ID = '1P_OSzj-sqDgT7_3KAdp7Y6ySA3ytsFHQKFvfZjAjsjE';
+        
+        // Función: Seleccionar tarifa de GAS y abrir modal
+        function selectGasTariff(tariff) {
+            currentGasTariff = tariff;
+            document.getElementById('gas-selected-tariff').textContent = tariff;
+            
+            // Mostrar modal
+            document.getElementById('gas-manual-input-modal').classList.remove('hidden');
+            document.getElementById('gas-manual-input-modal').classList.add('flex');
+            
+            // Cargar datos si no están cargados
+            if (gasTariffsData.length === 0) {
+                loadGasData();
+            }
+        }
+        
+        // Función: Cerrar modal
+        function closeGasModal() {
+            document.getElementById('gas-manual-input-modal').classList.add('hidden');
+            document.getElementById('gas-manual-input-modal').classList.remove('flex');
+        }
+        
+        // Función: Cargar datos del Google Sheets de GAS
+        async function loadGasData() {
+            const url = `https://docs.google.com/spreadsheets/d/${GAS_SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`;
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Error al cargar datos de GAS');
+                const text = await response.text();
+                gasTariffsData = parseGasCSV(text);
+                console.log(`✅ Cargadas ${gasTariffsData.length} tarifas de GAS`);
+            } catch (error) {
+                console.error('❌ Error al cargar datos de GAS:', error);
+                gasTariffsData = [];
+            }
+        }
+        
+        // Función: Parsear CSV de GAS
+        function parseGasCSV(csvText) {
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+                const row = {};
+                
+                headers.forEach((header, index) => {
+                    row[header] = values[index] || '';
+                });
+                
+                // Solo agregar si tiene datos válidos
+                if (row.Name && row.P1_price) {
+                    data.push(row);
+                }
+            }
+            
+            return data;
+        }
+        
+        // Función: Realizar cálculos de GAS
+        function calculateGas() {
+            // Obtener valores del formulario
+            const dias = parseFloat(document.getElementById('gas-dias').value);
+            const kwh = parseFloat(document.getElementById('gas-kwh').value);
+            const totalCliente = parseFloat(document.getElementById('gas-total-cliente').value);
+            
+            // Validar inputs
+            if (!dias || !kwh || !totalCliente) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+            
+            if (dias <= 0 || kwh <= 0 || totalCliente <= 0) {
+                alert('Los valores deben ser mayores a 0');
+                return;
+            }
+            
+            // Filtrar tarifas según modo de comparación y tarifa seleccionada
+            const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked').value;
+            let filteredTariffs = gasTariffsData.filter(t => t.Tarifa === currentGasTariff);
+            
+            // Aplicar filtro DRK si corresponde
+            if (comparisonMode === 'drk_only' || comparisonMode === 'drk_prioritized') {
+                filteredTariffs = filteredTariffs.filter(t => 
+                    t.Name && (t.Name.toLowerCase().includes('drk') || t.Name.toLowerCase().includes('direct'))
+                );
+            }
+            
+            if (filteredTariffs.length === 0) {
+                alert('No se encontraron tarifas para ' + currentGasTariff);
+                return;
+            }
+            
+            // Calcular cada tarifa
+            const results = filteredTariffs.map(tariff => {
+                return calculateGasTariff(tariff, dias, kwh, totalCliente);
+            });
+            
+            // Mostrar resultados
+            showGasResults(results, dias, kwh, totalCliente);
+            
+            // Cerrar modal
+            closeGasModal();
+        }
+        
+        // Función: Calcular una tarifa específica de GAS
+        function calculateGasTariff(tariff, dias, kwh, totalCliente) {
+            // Extraer datos de la tarifa
+            const p1_price = parseFloat(tariff.P1_price) || 0;
+            const descuento_energia = (parseFloat(tariff['Descuento Energía']) || 0) / 100;
+            const p_fijo_anual = parseFloat(tariff.P_fijo_1) || 0;
+            const descuento_potencia = (parseFloat(tariff['Descuento Potencia']) || 0) / 100;
+            
+            // 1. TÉRMINO FIJO
+            const p_fijo_diario = p_fijo_anual / 365;
+            const p_fijo_descuento = p_fijo_diario * descuento_potencia;
+            const total_fijo = dias * (p_fijo_diario - p_fijo_descuento);
+            
+            // 2. ENERGÍA
+            const p1_descuento = p1_price * descuento_energia;
+            const total_energia = kwh * (p1_price - p1_descuento);
+            
+            // 3. IMPUESTO DE HIDROCARBUROS
+            const impuesto_hidrocarburo = 0.00234 * kwh;
+            
+            // 4. ALQUILER DE CONTADOR
+            const alquiler_contador = 1.07;
+            
+            // 5. SUBTOTAL (antes de IVA)
+            const subtotal = total_fijo + total_energia + impuesto_hidrocarburo + alquiler_contador;
+            
+            // 6. IVA
+            const iva = 0.21 * subtotal;
+            
+            // 7. TOTAL FINAL
+            const total = subtotal + iva;
+            
+            // 8. AHORRO
+            const ahorro_periodo = totalCliente - total;
+            const ahorro_mensual = dias !== 30 ? (ahorro_periodo * 30) / dias : ahorro_periodo;
+            const ahorro_anual = ahorro_mensual * 12;
+            
+            return {
+                name: tariff.Name,
+                descripcion: tariff.Descripción || tariff.Name,
+                tarifa: tariff.Tarifa,
+                // Desglose
+                p_fijo_diario: p_fijo_diario,
+                p_fijo_descuento: p_fijo_descuento,
+                total_fijo: total_fijo,
+                p1_price: p1_price,
+                p1_descuento: p1_descuento,
+                total_energia: total_energia,
+                impuesto_hidrocarburo: impuesto_hidrocarburo,
+                alquiler_contador: alquiler_contador,
+                subtotal: subtotal,
+                iva: iva,
+                total: total,
+                // Ahorro
+                ahorro_periodo: ahorro_periodo,
+                ahorro_mensual: ahorro_mensual,
+                ahorro_anual: ahorro_anual
+            };
+        }
+        
+        // Función: Mostrar resultados de GAS
+        function showGasResults(results, dias, kwh, totalCliente) {
+            const container = document.getElementById('gas-results-container');
+            
+            // Ordenar por mejor ahorro
+            results.sort((a, b) => b.ahorro_anual - a.ahorro_anual);
+            
+            let html = '';
+            
+            results.forEach((result, index) => {
+                const isPositiveSaving = result.ahorro_anual > 0;
+                const savingClass = isPositiveSaving ? 'text-green-600' : 'text-red-600';
+                
+                html += `
+                <div class="mb-6 p-4 border-2 ${isPositiveSaving ? 'border-green-200 bg-green-50' : 'border-slate-200'} rounded-xl">
+                    <h3 class="text-xl font-bold text-drk-900 mb-2">${result.name}</h3>
+                    <p class="text-sm text-slate-600 mb-4">${result.descripcion}</p>
+                    
+                    <table class="w-full text-sm">
+                        <tr class="border-b">
+                            <td class="py-2">Término fijo (${dias} días)</td>
+                            <td class="text-right font-bold">${result.total_fijo.toFixed(2)} €</td>
+                        </tr>
+                        ${result.p_fijo_descuento > 0 ? `
+                        <tr class="border-b text-green-600">
+                            <td class="py-2 pl-4">↳ Descuento potencia</td>
+                            <td class="text-right font-bold">-${(dias * result.p_fijo_descuento).toFixed(2)} €</td>
+                        </tr>
+                        ` : ''}
+                        <tr class="border-b">
+                            <td class="py-2">Energía (${kwh} kWh)</td>
+                            <td class="text-right font-bold">${result.total_energia.toFixed(2)} €</td>
+                        </tr>
+                        ${result.p1_descuento > 0 ? `
+                        <tr class="border-b text-green-600">
+                            <td class="py-2 pl-4">↳ Descuento energía</td>
+                            <td class="text-right font-bold">-${(kwh * result.p1_descuento).toFixed(2)} €</td>
+                        </tr>
+                        ` : ''}
+                        <tr class="border-b">
+                            <td class="py-2">Impuesto hidrocarburos</td>
+                            <td class="text-right">${result.impuesto_hidrocarburo.toFixed(2)} €</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2">Alquiler contador</td>
+                            <td class="text-right">${result.alquiler_contador.toFixed(2)} €</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2">IVA (21%)</td>
+                            <td class="text-right">${result.iva.toFixed(2)} €</td>
+                        </tr>
+                        <tr class="border-t-2 border-drk-500 font-bold text-lg">
+                            <td class="py-2">TOTAL</td>
+                            <td class="text-right">${result.total.toFixed(2)} €</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="mt-4 p-3 bg-slate-100 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold">Tu factura actual:</span>
+                            <span class="font-bold">${totalCliente.toFixed(2)} €</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold">Con esta tarifa:</span>
+                            <span class="font-bold">${result.total.toFixed(2)} €</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-2 text-lg ${savingClass}">
+                            <span class="font-bold">Ahorro mensual:</span>
+                            <span class="font-bold">${isPositiveSaving ? '+' : ''}${result.ahorro_mensual.toFixed(2)} €</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-1 text-xl ${savingClass}">
+                            <span class="font-bold">Ahorro anual:</span>
+                            <span class="font-bold">${isPositiveSaving ? '+' : ''}${result.ahorro_anual.toFixed(2)} €</span>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Mostrar pantalla de resultados
+            hideAllScreens();
+            document.getElementById('screen-gas-results').classList.add('active');
         }
     </script>
 </body>
