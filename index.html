@@ -11321,8 +11321,799 @@
             }
         }
         
-        // PDF DUAL (Indexada vs Fija) - IGUAL A ELECTRICIDAD
+        // PDF DUAL (Indexada vs Fija) - FORMATO DRK PROFESIONAL 4 PÁGINAS
         async function generateGasPDF_Dual(resFijo, resIndexed, dias, kwh, totalCliente) {
+            window.showMessageModal("⏳ Generando PDF con comparación Fijo vs Indexado... Por favor espere.");
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            const eur = n => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0);
+            const num = (n, d=2) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n || 0);
+            
+            const pageWidth = 210;
+            const margin = 12;
+            let yPos = 0;
+            
+            // Determinar mejor opción
+            const bestIsFijo = resFijo.ahorro_anual > resIndexed.ahorro_anual;
+            
+            // === PÁGINA 1: PORTADA CON 3 CAJAS ===
+            
+            // Franja roja superior
+            doc.setFillColor(211, 47, 47);
+            doc.rect(0, 0, pageWidth, 10, 'F');
+            
+            yPos = 15;
+            
+            // CAJA AZUL GRANDE CON LOGO
+            doc.setFillColor(52, 86, 118);
+            doc.roundedRect(margin, yPos, pageWidth - (2 * margin), 100, 5, 5, 'F');
+            
+            // Logo DRK (anillo multicolor)
+            const logoX = 35;
+            const logoY = yPos + 35;
+            const logoRadius = 10;
+            
+            doc.setFillColor(219, 68, 55);
+            doc.circle(logoX - 2, logoY + 2, logoRadius * 0.8, 'F');
+            doc.setFillColor(66, 133, 244);
+            doc.circle(logoX + 2, logoY - 2, logoRadius * 0.8, 'F');
+            doc.setFillColor(244, 180, 0);
+            doc.circle(logoX - 2, logoY - 2, logoRadius * 0.7, 'F');
+            doc.setFillColor(15, 157, 88);
+            doc.circle(logoX + 2, logoY + 2, logoRadius * 0.7, 'F');
+            doc.setFillColor(255, 255, 255);
+            doc.circle(logoX, logoY, logoRadius * 0.4, 'F');
+            
+            // Texto DRK ENERGÍA
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(40);
+            doc.text('DRK', 65, yPos + 30);
+            doc.text('ENERGÍA', 65, yPos + 50);
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(11);
+            doc.text('Liderando el ahorro y', 65, yPos + 63);
+            doc.text('la eficiencia', 65, yPos + 73);
+            doc.text('energética', 65, yPos + 83);
+            
+            // Caja derecha "ESTUDIO"
+            doc.setFillColor(90, 130, 160);
+            doc.roundedRect(145, yPos + 25, 50, 50, 3, 3, 'F');
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text('📊 ESTUDIO', 170, yPos + 35, { align: 'center' });
+            doc.text('DE', 170, yPos + 42, { align: 'center' });
+            doc.text('AHORRO', 170, yPos + 49, { align: 'center' });
+            doc.setFontSize(11);
+            doc.text('COMPARATIVA', 170, yPos + 60, { align: 'center' });
+            doc.setFontSize(9);
+            doc.text('PROFESIONAL', 170, yPos + 69, { align: 'center' });
+            
+            yPos += 110;
+            
+            // "Análisis Completado"
+            doc.setFillColor(220, 252, 231);
+            doc.roundedRect(80, yPos, 50, 10, 5, 5, 'F');
+            
+            doc.setTextColor(76, 175, 80);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text('● Análisis Completado', 105, yPos + 6, { align: 'center' });
+            
+            yPos += 15;
+            
+            // "Resultado del Estudio"
+            doc.setTextColor(40, 50, 60);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text('Resultado del Estudio', pageWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 6;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(100, 110, 120);
+            doc.text('CUPS: ES0021000020679723GY', pageWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 15;
+            
+            // === TRES CAJAS COMPARATIVAS ===
+            const boxWidth = (pageWidth - (2 * margin) - 10) / 3;
+            const boxHeight = 65;
+            
+            // CAJA 1: TU FACTURA ACTUAL (GRIS)
+            let boxX = margin;
+            
+            doc.setFillColor(107, 125, 142);
+            doc.rect(boxX, yPos, boxWidth, 12, 'F');
+            doc.setFillColor(255, 255, 255);
+            doc.rect(boxX, yPos + 12, boxWidth, boxHeight - 12, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text('TU FACTURA', boxX + boxWidth / 2, yPos + 5, { align: 'center' });
+            doc.text('ACTUAL', boxX + boxWidth / 2, yPos + 10, { align: 'center' });
+            
+            doc.setTextColor(100, 110, 120);
+            doc.setFontSize(8);
+            doc.text('TU FACTURA', boxX + boxWidth / 2, yPos + 20, { align: 'center' });
+            doc.text('ACTUAL', boxX + boxWidth / 2, yPos + 25, { align: 'center' });
+            
+            const facturaActualMes = totalCliente * 30 / dias;
+            doc.setTextColor(220, 38, 38);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text(eur(facturaActualMes), boxX + boxWidth / 2, yPos + 35, { align: 'center' });
+            
+            // Línea tachada
+            const textWidth = doc.getTextWidth(eur(facturaActualMes));
+            doc.setDrawColor(220, 38, 38);
+            doc.setLineWidth(1.5);
+            doc.line(
+                boxX + (boxWidth - textWidth) / 2,
+                yPos + 32,
+                boxX + (boxWidth + textWidth) / 2,
+                yPos + 32
+            );
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(100, 110, 120);
+            doc.text('Total Periodo (' + dias + ' días)', boxX + boxWidth / 2, yPos + 42, { align: 'center' });
+            
+            const facturaActualAnio = totalCliente * 365 / dias;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.setTextColor(220, 38, 38);
+            doc.text(eur(facturaActualAnio) + '/', boxX + boxWidth / 2, yPos + 52, { align: 'center' });
+            doc.text('año', boxX + boxWidth / 2, yPos + 59, { align: 'center' });
+            
+            // Línea tachada anual
+            const textWidthAnio = doc.getTextWidth(eur(facturaActualAnio) + '/');
+            doc.line(
+                boxX + (boxWidth - textWidthAnio) / 2,
+                yPos + 49,
+                boxX + (boxWidth + textWidthAnio) / 2,
+                yPos + 49
+            );
+            
+            // CAJA 2: LA MEJOR OPCIÓN DRK FIJA (AZUL)
+            boxX += boxWidth + 5;
+            
+            doc.setFillColor(59, 130, 246);
+            doc.rect(boxX, yPos, boxWidth, 12, 'F');
+            doc.setFillColor(230, 240, 255);
+            doc.rect(boxX, yPos + 12, boxWidth, boxHeight - 12, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.text('LA MEJOR OPCIÓN', boxX + boxWidth / 2, yPos + 5, { align: 'center' });
+            doc.text('PARA TI ES DRK', boxX + boxWidth / 2, yPos + 10, { align: 'center' });
+            
+            doc.setTextColor(59, 130, 246);
+            doc.setFontSize(11);
+            doc.text('DRK', boxX + boxWidth / 2, yPos + 22, { align: 'center' });
+            
+            const nuevaCosteMesFijo = resFijo.total * 30 / dias;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text(eur(nuevaCosteMesFijo) + '/', boxX + boxWidth / 2, yPos + 35, { align: 'center' });
+            doc.setFontSize(11);
+            doc.text('mes', boxX + boxWidth / 2, yPos + 42, { align: 'center' });
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(100, 110, 120);
+            doc.text('Estimado Mensual', boxX + boxWidth / 2, yPos + 48, { align: 'center' });
+            
+            const nuevaCosteAnioFijo = resFijo.total * 365 / dias;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.setTextColor(59, 130, 246);
+            doc.text(eur(nuevaCosteAnioFijo) + '/', boxX + boxWidth / 2, yPos + 57, { align: 'center' });
+            doc.text('año', boxX + boxWidth / 2, yPos + 64, { align: 'center' });
+            
+            // CAJA 3: LA MEJOR OPCIÓN DRK INDEX (VERDE)
+            boxX += boxWidth + 5;
+            
+            doc.setFillColor(76, 175, 80);
+            doc.rect(boxX, yPos, boxWidth, 12, 'F');
+            doc.setFillColor(220, 252, 231);
+            doc.rect(boxX, yPos + 12, boxWidth, boxHeight - 12, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.text('LA MEJOR OPCIÓN', boxX + boxWidth / 2, yPos + 5, { align: 'center' });
+            doc.text('PARA TI ES DRK', boxX + boxWidth / 2, yPos + 10, { align: 'center' });
+            
+            doc.setTextColor(76, 175, 80);
+            doc.setFontSize(11);
+            doc.text('DRK INDEX', boxX + boxWidth / 2, yPos + 22, { align: 'center' });
+            
+            const nuevaCosteMesIndexed = resIndexed.total * 30 / dias;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text(eur(nuevaCosteMesIndexed) + '/', boxX + boxWidth / 2, yPos + 35, { align: 'center' });
+            doc.setFontSize(11);
+            doc.text('mes', boxX + boxWidth / 2, yPos + 42, { align: 'center' });
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(100, 110, 120);
+            doc.text('Estimado Mensual', boxX + boxWidth / 2, yPos + 48, { align: 'center' });
+            
+            const nuevaCosteAnioIndexed = resIndexed.total * 365 / dias;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.setTextColor(76, 175, 80);
+            doc.text(eur(nuevaCosteAnioIndexed) + '/', boxX + boxWidth / 2, yPos + 57, { align: 'center' });
+            doc.text('año', boxX + boxWidth / 2, yPos + 64, { align: 'center' });
+            
+            // === PÁGINA 2: RESUMEN COMPARATIVO ===
+            doc.addPage();
+            yPos = 15;
+            
+            // Header gris con logo
+            doc.setFillColor(107, 125, 142);
+            doc.rect(0, 0, pageWidth, 35, 'F');
+            
+            // Logo pequeño
+            const logoX2 = 20;
+            const logoY2 = 18;
+            const logoRadius2 = 6;
+            
+            doc.setFillColor(219, 68, 55);
+            doc.circle(logoX2 - 1, logoY2 + 1, logoRadius2 * 0.8, 'F');
+            doc.setFillColor(66, 133, 244);
+            doc.circle(logoX2 + 1, logoY2 - 1, logoRadius2 * 0.8, 'F');
+            doc.setFillColor(244, 180, 0);
+            doc.circle(logoX2 - 1, logoY2 - 1, logoRadius2 * 0.7, 'F');
+            doc.setFillColor(15, 157, 88);
+            doc.circle(logoX2 + 1, logoY2 + 1, logoRadius2 * 0.7, 'F');
+            doc.setFillColor(255, 255, 255);
+            doc.circle(logoX2, logoY2, logoRadius2 * 0.4, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('DRK', logoX2 + 12, 14);
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.text('Liderando el ahorro y la', logoX2 + 12, 20);
+            doc.text('eficiencia energética.', logoX2 + 12, 25);
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.text('ESTUDIO DE AHORRO', pageWidth - margin, 13, { align: 'right' });
+            doc.setFontSize(11);
+            doc.text('COMPARATIVA', pageWidth - margin, 21, { align: 'right' });
+            doc.setFontSize(10);
+            doc.text('PROFESIONAL', pageWidth - margin, 28, { align: 'right' });
+            
+            yPos = 45;
+            
+            // Título
+            doc.setTextColor(40, 50, 60);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text('COMPARATIVA PROFESIONAL - DRK', margin, yPos);
+            
+            yPos += 8;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(100, 110, 120);
+            doc.text('CLIENTE: [NOMBRE COMPLETO CLIENTE]', margin, yPos);
+            yPos += 5;
+            doc.text('CUPS TOTALES: 1', margin, yPos);
+            
+            yPos += 15;
+            
+            // CAJA GRANDE GRIS "LA MEJOR OPCIÓN"
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(margin, yPos, pageWidth - (2 * margin), 40, 3, 3, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text('LA MEJOR OPCIÓN PARA TI ES', pageWidth / 2, yPos + 10, { align: 'center' });
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.text('DRK', pageWidth / 2, yPos + 22, { align: 'center' });
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.text('Ofrece el mayor ahorro consolidado con DRK ENERGÍA.', pageWidth / 2, yPos + 32, { align: 'center' });
+            
+            yPos += 50;
+            
+            // === COMPARATIVA DE AHORROS (3 COLUMNAS) ===
+            const col1X = margin;
+            const col2X = margin + 62;
+            const col3X = margin + 62 + 63;
+            const colWidth = 60;
+            
+            // COLUMNA 1: TU FACTURA ACTUAL
+            doc.setTextColor(40, 50, 60);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.text('TU FACTURA ACTUAL', col1X, yPos);
+            
+            yPos += 8;
+            
+            doc.setTextColor(220, 38, 38);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text(eur(facturaActualMes), col1X, yPos);
+            
+            // Línea tachada
+            const textW1 = doc.getTextWidth(eur(facturaActualMes));
+            doc.setDrawColor(220, 38, 38);
+            doc.setLineWidth(1.5);
+            doc.line(col1X, yPos - 4, col1X + textW1, yPos - 4);
+            
+            yPos += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(100, 110, 120);
+            doc.text('Total Periodo (' + dias + ' días)', col1X, yPos);
+            
+            yPos += 8;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.setTextColor(220, 38, 38);
+            doc.text(eur(facturaActualAnio) + '/año', col1X, yPos);
+            
+            // Línea tachada anual
+            const textW2 = doc.getTextWidth(eur(facturaActualAnio) + '/año');
+            doc.line(col1X, yPos - 4, col1X + textW2, yPos - 4);
+            
+            // COLUMNA 2: TU AHORRO ANUAL FIJO
+            yPos -= 21; // Volver arriba
+            
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(col2X - 2, yPos - 7, colWidth, 10, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('TU AHORRO ANUAL FIJO', col2X + colWidth / 2, yPos - 1, { align: 'center' });
+            
+            yPos += 8;
+            
+            doc.setTextColor(76, 175, 80);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(20);
+            doc.text(eur(resFijo.ahorro_anual), col2X + colWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 8;
+            doc.setTextColor(100, 110, 120);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.text('TU NUEVO COSTE DRK', col2X + colWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 6;
+            doc.setTextColor(59, 130, 246);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text(eur(nuevaCosteMesFijo) + '/mes', col2X + colWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(100, 110, 120);
+            doc.text('Estimado Mensual', col2X + colWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 7;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.setTextColor(59, 130, 246);
+            doc.text(eur(nuevaCosteAnioFijo) + '/año', col2X + colWidth / 2, yPos, { align: 'center' });
+            
+            // COLUMNA 3: TU AHORRO ANUAL INDEXADO
+            yPos -= 38; // Volver arriba
+            
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(col3X - 2, yPos - 7, colWidth, 10, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('TU AHORRO ANUAL INDEXADO', col3X + colWidth / 2, yPos - 1, { align: 'center' });
+            
+            yPos += 8;
+            
+            doc.setTextColor(76, 175, 80);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(20);
+            doc.text(eur(resIndexed.ahorro_anual), col3X + colWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 8;
+            doc.setTextColor(100, 110, 120);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.text('TU NUEVO COSTE DRK', col3X + colWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 6;
+            doc.setTextColor(76, 175, 80);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text(eur(nuevaCosteMesIndexed) + '/mes', col3X + colWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(100, 110, 120);
+            doc.text('Estimado Mensual', col3X + colWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 7;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.setTextColor(76, 175, 80);
+            doc.text(eur(nuevaCosteAnioIndexed) + '/año', col3X + colWidth / 2, yPos, { align: 'center' });
+            
+            // === PÁGINA 3: DESGLOSE DETALLADO LADO A LADO ===
+            doc.addPage();
+            yPos = 15;
+            
+            // Título verde
+            doc.setFillColor(76, 175, 80);
+            doc.roundedRect(margin, yPos, pageWidth - (2 * margin), 12, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.text('DESGLOSE DETALLADO POR SUMINISTRO', margin + 5, yPos + 8);
+            
+            yPos += 18;
+            
+            // DOS COLUMNAS DE DESGLOSE
+            const leftColX = margin;
+            const rightColX = pageWidth / 2 + 2;
+            const colW = (pageWidth - (2 * margin) - 4) / 2;
+            
+            // === COLUMNA IZQUIERDA: TARIFA FIJA ===
+            let leftY = yPos;
+            
+            // Header gris
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(leftColX, leftY, colW, 18, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.text('[ES0021000020679723GY]', leftColX + 3, leftY + 5);
+            doc.text('Tipo: 2.0TD', leftColX + colW - 3, leftY + 5, { align: 'right' });
+            doc.text('Días: ' + dias, leftColX + colW - 3, leftY + 10, { align: 'right' });
+            
+            doc.setFontSize(8);
+            doc.text('DRK - ' + resFijo.descripcion, leftColX + 3, leftY + 13);
+            
+            leftY += 22;
+            
+            // Precios aplicados
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(leftColX, leftY, colW, 8, 2, 2, 'F');
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('PRECIOS APLICADOS:', leftColX + 3, leftY + 5);
+            
+            leftY += 12;
+            
+            // Caja de precios
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(leftColX, leftY, colW, 18, 2, 2, 'F');
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.text('POTENCIA:', leftColX + 3, leftY + 5);
+            doc.text('ENERGÍA:', leftColX + colW / 2, leftY + 5);
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6);
+            doc.text('P1: ' + num(resFijo.p_fijo_diario, 6) + ' €kW/día', leftColX + 3, leftY + 9);
+            doc.text('E1: ' + num(resFijo.p1_price, 6) + ' €/kWh', leftColX + colW / 2, leftY + 9);
+            
+            leftY += 22;
+            
+            // POTENCIA
+            doc.setFillColor(90, 110, 130);
+            doc.roundedRect(leftColX, leftY, colW, 8, 2, 2, 'F');
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('POTENCIA', leftColX + 3, leftY + 5);
+            
+            leftY += 12;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6.5);
+            doc.text('P1: (5,70 kW x ' + dias + ' d x ' + num(resFijo.p_fijo_diario / 365, 6) + ' €kW/día)', leftColX + 2, leftY);
+            doc.text(eur(resFijo.total_fijo / 2), leftColX + colW - 2, leftY, { align: 'right' });
+            leftY += 4;
+            doc.text('P2: (5,70 kW x ' + dias + ' d x ' + num(resFijo.p_fijo_diario / 365, 6) + ' €kW/día)', leftColX + 2, leftY);
+            doc.text(eur(resFijo.total_fijo / 2), leftColX + colW - 2, leftY, { align: 'right' });
+            
+            leftY += 8;
+            
+            // ENERGÍA
+            doc.setFillColor(90, 110, 130);
+            doc.roundedRect(leftColX, leftY, colW, 8, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('ENERGÍA', leftColX + 3, leftY + 5);
+            
+            leftY += 12;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6.5);
+            const kwhPunta = Math.round(kwh * 0.39);
+            const kwhLlano = Math.round(kwh * 0.31);
+            const kwhValle = kwh - kwhPunta - kwhLlano;
+            doc.text('E1 (Punta): (' + kwhPunta + ' kWh x ' + num(resFijo.p1_price, 6) + ' €/kWh)', leftColX + 2, leftY);
+            doc.text(eur(kwhPunta * resFijo.p1_price), leftColX + colW - 2, leftY, { align: 'right' });
+            leftY += 4;
+            doc.text('E2 (Llano): (' + kwhLlano + ' kWh x ' + num(resFijo.p1_price, 6) + ' €/kWh)', leftColX + 2, leftY);
+            doc.text(eur(kwhLlano * resFijo.p1_price), leftColX + colW - 2, leftY, { align: 'right' });
+            leftY += 4;
+            doc.text('E3 (Valle): (' + kwhValle + ' kWh x ' + num(resFijo.p1_price, 6) + ' €/kWh)', leftColX + 2, leftY);
+            doc.text(eur(kwhValle * resFijo.p1_price), leftColX + colW - 2, leftY, { align: 'right' });
+            
+            leftY += 8;
+            
+            // TOTAL
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(leftColX, leftY, colW, 10, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text('TOTAL (' + dias + ' DÍAS)', leftColX + 3, leftY + 7);
+            doc.text(eur(resFijo.total), leftColX + colW - 3, leftY + 7, { align: 'right' });
+            
+            leftY += 15;
+            
+            // AHORRO
+            doc.setFillColor(211, 47, 47);
+            doc.roundedRect(leftColX, leftY, colW, 12, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.text('AHORRO:', leftColX + 3, leftY + 8);
+            doc.setFontSize(11);
+            doc.text(eur(resFijo.ahorro_anual), leftColX + colW - 3, leftY + 8, { align: 'right' });
+            
+            // === COLUMNA DERECHA: TARIFA INDEXADA ===
+            let rightY = yPos;
+            
+            // Header gris
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(rightColX, rightY, colW, 18, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.text('[ES0021000020679723GY]', rightColX + 3, rightY + 5);
+            doc.text('Tipo: 2.0TD', rightColX + colW - 3, rightY + 5, { align: 'right' });
+            doc.text('Días: ' + dias, rightColX + colW - 3, rightY + 10, { align: 'right' });
+            
+            doc.setFontSize(8);
+            doc.text('DRK INDEX - ' + resIndexed.descripcion, rightColX + 3, rightY + 13);
+            
+            rightY += 22;
+            
+            // Precios aplicados
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(rightColX, rightY, colW, 8, 2, 2, 'F');
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('PRECIOS APLICADOS:', rightColX + 3, rightY + 5);
+            
+            rightY += 12;
+            
+            // Caja de precios
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(rightColX, rightY, colW, 18, 2, 2, 'F');
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.text('POTENCIA:', rightColX + 3, rightY + 5);
+            doc.text('ENERGÍA:', rightColX + colW / 2, rightY + 5);
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6);
+            doc.text('P1: ' + num(resIndexed.p_fijo_diario, 6) + ' €kW/día', rightColX + 3, rightY + 9);
+            doc.text('E1: ' + num(resIndexed.p1_price, 6) + ' €/kWh', rightColX + colW / 2, rightY + 9);
+            
+            rightY += 22;
+            
+            // POTENCIA
+            doc.setFillColor(90, 110, 130);
+            doc.roundedRect(rightColX, rightY, colW, 8, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('POTENCIA', rightColX + 3, rightY + 5);
+            
+            rightY += 12;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6.5);
+            doc.text('P1: (5,70 kW x ' + dias + ' d x ' + num(resIndexed.p_fijo_diario / 365, 6) + ' €kW/día)', rightColX + 2, rightY);
+            doc.text(eur(resIndexed.total_fijo / 2), rightColX + colW - 2, rightY, { align: 'right' });
+            rightY += 4;
+            doc.text('P2: (5,70 kW x ' + dias + ' d x ' + num(resIndexed.p_fijo_diario / 365, 6) + ' €kW/día)', rightColX + 2, rightY);
+            doc.text(eur(resIndexed.total_fijo / 2), rightColX + colW - 2, rightY, { align: 'right' });
+            
+            rightY += 8;
+            
+            // ENERGÍA
+            doc.setFillColor(90, 110, 130);
+            doc.roundedRect(rightColX, rightY, colW, 8, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('ENERGÍA', rightColX + 3, rightY + 5);
+            
+            rightY += 12;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6.5);
+            doc.text('E1 (Punta): (' + kwhPunta + ' kWh x ' + num(resIndexed.p1_price, 6) + ' €/kWh)', rightColX + 2, rightY);
+            doc.text(eur(kwhPunta * resIndexed.p1_price), rightColX + colW - 2, rightY, { align: 'right' });
+            rightY += 4;
+            doc.text('E2 (Llano): (' + kwhLlano + ' kWh x ' + num(resIndexed.p1_price, 6) + ' €/kWh)', rightColX + 2, rightY);
+            doc.text(eur(kwhLlano * resIndexed.p1_price), rightColX + colW - 2, rightY, { align: 'right' });
+            rightY += 4;
+            doc.text('E3 (Valle): (' + kwhValle + ' kWh x ' + num(resIndexed.p1_price, 6) + ' €/kWh)', rightColX + 2, rightY);
+            doc.text(eur(kwhValle * resIndexed.p1_price), rightColX + colW - 2, rightY, { align: 'right' });
+            
+            rightY += 8;
+            
+            // TOTAL
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(rightColX, rightY, colW, 10, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text('TOTAL (' + dias + ' DÍAS)', rightColX + 3, rightY + 7);
+            doc.text(eur(resIndexed.total), rightColX + colW - 3, rightY + 7, { align: 'right' });
+            
+            rightY += 15;
+            
+            // AHORRO
+            doc.setFillColor(211, 47, 47);
+            doc.roundedRect(rightColX, rightY, colW, 12, 2, 2, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.text('AHORRO:', rightColX + 3, rightY + 8);
+            doc.setFontSize(11);
+            doc.text(eur(resIndexed.ahorro_anual), rightColX + colW - 3, rightY + 8, { align: 'right' });
+            
+            // === PÁGINA 4: CUAL ES LA DIFERENCIA ===
+            doc.addPage();
+            yPos = 40;
+            
+            // Título
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('CUAL ES LA DIFERENCIA?', pageWidth / 2, yPos, { align: 'center' });
+            
+            yPos += 15;
+            
+            // DOS COLUMNAS DE EXPLICACIÓN
+            const explColW = (pageWidth - (2 * margin) - 10) / 2;
+            
+            // COLUMNA IZQUIERDA: POR QUE TARIFA FIJA
+            doc.setTextColor(59, 130, 246);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('POR QUE TARIFA FIJA?', leftColX, yPos);
+            
+            yPos += 8;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            const fijaTexts = [
+                '• Implica un precio fijo por los kilovatios que',
+                '  consumes (kWh).',
+                '',
+                '• El precio se mantiene estable,',
+                '  independientemente de cómo se comporten los',
+                '  precios en el mercado eléctrico.',
+                '',
+                '• Cuando el precio del mercado está alto, el',
+                '  cliente está protegido frente a sobresaltos.',
+                '',
+                '• No tendrás que estar pendiente de las',
+                '  variaciones del mercado y podrás seguir',
+                '  usando la electricidad como siempre.'
+            ];
+            
+            fijaTexts.forEach(line => {
+                doc.text(line, leftColX, yPos);
+                yPos += 4;
+            });
+            
+            // COLUMNA DERECHA: POR QUE TARIFA INDEXADA
+            yPos = 55;
+            
+            doc.setTextColor(76, 175, 80);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('POR QUE TARIFA INDEXADA?', rightColX, yPos);
+            
+            yPos += 8;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            const indexTexts = [
+                '• Implica un precio variable por los kilovatios',
+                '  que consumes (kWh) cada mes.',
+                '',
+                '• Es la tarifa más justa, ya que pagas el coste',
+                '  real de la energía mes a mes.',
+                '',
+                '• Al contratarla, el cliente evita pagar',
+                '  márgenes adicionales cuando el precio de la',
+                '  electricidad es más barato.',
+                '',
+                '• A largo plazo, con un indexado 100%',
+                '  funcional, se puede obtener un ahorro',
+                '  aproximado de hasta un 20% en épocas de',
+                '  mejor precio.'
+            ];
+            
+            indexTexts.forEach(line => {
+                doc.text(line, rightColX, yPos);
+                yPos += 4;
+            });
+            
+            // Pie de página
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(7);
+            doc.setTextColor(120, 120, 120);
+            doc.text('Documento generado automáticamente - DRK Energía', pageWidth / 2, 285, { align: 'center' });
+            doc.text('Fecha: ' + new Date().toLocaleDateString('es-ES'), pageWidth / 2, 290, { align: 'center' });
+            
+            // Numeración de páginas
+            for (let i = 1; i <= doc.internal.getNumberOfPages(); i++) {
+                doc.setPage(i);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                doc.text('Pág. ' + i + ' de ' + doc.internal.getNumberOfPages(), pageWidth - margin, 290, { align: 'right' });
+            }
+            
+            // Descargar
+            doc.save(`Comparativa_GAS_Dual_${currentGasTariff}_${new Date().toISOString().slice(0,10)}.pdf`);
+            
+            window.showMessageModal("✅ PDF generado correctamente", false);
+        }
             window.showMessageModal("⏳ Generando PDF con comparación Fijo vs Indexado... Por favor espere.");
             
             const { jsPDF } = window.jspdf;
