@@ -10583,13 +10583,24 @@
                 p1_price: p1_price + ' (original: ' + (tariff.p1_price || tariff.P1_price) + ')',
                 descuento_energia: (descuento_energia * 100) + '%',
                 p_fijo_anual: p_fijo_anual + ' (original: ' + (tariff.p_fijo_1 || tariff.P_fijo_1) + ')',
-                descuento_potencia: (descuento_potencia * 100) + '%'
+                descuento_potencia: (descuento_potencia * 100) + '%',
+                dias: dias
             });
             
             // 1. TÉRMINO FIJO
             const p_fijo_diario = p_fijo_anual / 365;
             const p_fijo_descuento = p_fijo_diario * descuento_potencia;
-            const total_fijo = dias * (p_fijo_diario - p_fijo_descuento);
+            const p_fijo_diario_final = p_fijo_diario - p_fijo_descuento;
+            const total_fijo = p_fijo_diario_final * dias;
+            
+            console.log('📊 Término fijo:', {
+                'p_fijo_anual': p_fijo_anual.toFixed(6),
+                'p_fijo_diario': p_fijo_diario.toFixed(6),
+                'descuento_por_dia': p_fijo_descuento.toFixed(6),
+                'p_fijo_diario_final': p_fijo_diario_final.toFixed(6),
+                'dias': dias,
+                'total_fijo': total_fijo.toFixed(2)
+            });
             
             // 2. ENERGÍA
             const p1_descuento = p1_price * descuento_energia;
@@ -10598,11 +10609,11 @@
             // 3. IMPUESTO DE HIDROCARBUROS
             const impuesto_hidrocarburo = 0.00234 * kwh;
             
-            // 4. ALQUILER DE CONTADOR
-            const alquiler_contador = 1.07;
+            // 4. ALQUILER DE CONTADOR - QUITADO (ya no se incluye)
+            // const alquiler_contador = 1.07;
             
-            // 5. SUBTOTAL (antes de IVA)
-            const subtotal = total_fijo + total_energia + impuesto_hidrocarburo + alquiler_contador;
+            // 5. SUBTOTAL (antes de IVA) - SIN alquiler contador
+            const subtotal = total_fijo + total_energia + impuesto_hidrocarburo;
             
             // 6. IVA
             const iva = 0.21 * subtotal;
@@ -10618,6 +10629,8 @@
             console.log('💰 Resultado:', {
                 total_fijo: total_fijo.toFixed(2) + '€',
                 total_energia: total_energia.toFixed(2) + '€',
+                subtotal: subtotal.toFixed(2) + '€',
+                iva: iva.toFixed(2) + '€',
                 total: total.toFixed(2) + '€',
                 ahorro_anual: ahorro_anual.toFixed(2) + '€'
             });
@@ -10634,7 +10647,7 @@
                 p1_descuento: p1_descuento,
                 total_energia: total_energia,
                 impuesto_hidrocarburo: impuesto_hidrocarburo,
-                alquiler_contador: alquiler_contador,
+                alquiler_contador: 0, // Quitado
                 subtotal: subtotal,
                 iva: iva,
                 total: total,
@@ -10687,10 +10700,6 @@
                         <tr class="border-b">
                             <td class="py-2">Impuesto hidrocarburos</td>
                             <td class="text-right">${result.impuesto_hidrocarburo.toFixed(2)} €</td>
-                        </tr>
-                        <tr class="border-b">
-                            <td class="py-2">Alquiler contador</td>
-                            <td class="text-right">${result.alquiler_contador.toFixed(2)} €</td>
                         </tr>
                         <tr class="border-b">
                             <td class="py-2">IVA (21%)</td>
