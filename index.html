@@ -436,7 +436,7 @@
         
         <!-- MODAL: Entrada manual de datos GAS -->
         <div id="gas-manual-input-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-red-500">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-red-500 max-h-[90vh] overflow-y-auto">
                 <div class="p-6">
                     <h3 class="text-2xl font-black text-red-600 mb-2 text-center">Datos de la Factura de GAS</h3>
                     <p class="text-sm text-slate-500 mb-4 text-center">Tarifa: <span id="gas-selected-tariff" class="font-bold text-red-600"></span></p>
@@ -486,6 +486,79 @@
                                 step="0.01"
                             >
                         </div>
+                        
+                        <!-- SELECTOR: Comparar Indexada vs Fija -->
+                        <div class="pt-4 border-t border-slate-200">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    id="gas-compare-indexed-fixed" 
+                                    class="w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                                    onchange="toggleGasComparisonMode()"
+                                >
+                                <span class="text-sm font-bold text-slate-700">Comparar Indexada vs Fija</span>
+                            </label>
+                            <p class="text-xs text-slate-500 mt-1 ml-8">
+                                Activa para comparar automáticamente tarifa indexada DRK contra tarifas fijas.
+                            </p>
+                        </div>
+                        
+                        <!-- OPCIONES DE SELECCIÓN -->
+                        <div class="pt-4 border-t border-slate-200">
+                            <p class="text-sm font-bold text-slate-700 mb-3">Modo de selección:</p>
+                            
+                            <!-- Opción 1: Mejores tarifas -->
+                            <label class="flex items-start gap-3 mb-3 cursor-pointer p-3 border-2 border-slate-200 rounded-lg hover:border-red-300 transition">
+                                <input 
+                                    type="radio" 
+                                    name="gas-selection-mode" 
+                                    value="best" 
+                                    class="mt-1 w-4 h-4 text-red-600"
+                                    checked
+                                    onchange="updateGasSelectionUI()"
+                                >
+                                <div>
+                                    <span class="font-bold text-slate-800">Mejores tarifas</span>
+                                    <p class="text-xs text-slate-500" id="gas-best-description">
+                                        El sistema calculará automáticamente las mejores opciones.
+                                    </p>
+                                </div>
+                            </label>
+                            
+                            <!-- Opción 2: Elegir entre resultados -->
+                            <label class="flex items-start gap-3 cursor-pointer p-3 border-2 border-slate-200 rounded-lg hover:border-red-300 transition">
+                                <input 
+                                    type="radio" 
+                                    name="gas-selection-mode" 
+                                    value="manual" 
+                                    class="mt-1 w-4 h-4 text-red-600"
+                                    onchange="updateGasSelectionUI()"
+                                >
+                                <div>
+                                    <span class="font-bold text-slate-800">Elegir entre resultados</span>
+                                    <p class="text-xs text-slate-500">
+                                        Selecciona manualmente las tarifas que deseas comparar.
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <!-- Botones FIJA/INDEXADA (solo cuando selector NO marcado y modo "best") -->
+                        <div id="gas-type-buttons" class="pt-4 border-t border-slate-200 space-y-2">
+                            <p class="text-sm font-bold text-slate-700 mb-2">Tipo de tarifa:</p>
+                            <button 
+                                onclick="calculateGasWithType('fija')" 
+                                class="w-full px-6 py-3 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600 transition"
+                            >
+                                🔵 Tarifa Fija
+                            </button>
+                            <button 
+                                onclick="calculateGasWithType('indexada')" 
+                                class="w-full px-6 py-3 bg-orange-500 text-white rounded-lg font-bold hover:bg-orange-600 transition"
+                            >
+                                🟠 Tarifa Indexada
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="flex gap-3 mt-6">
@@ -496,10 +569,11 @@
                             Cancelar
                         </button>
                         <button 
-                            onclick="calculateGas()" 
+                            id="gas-calculate-btn"
+                            onclick="proceedToGasCalculation()" 
                             class="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 transition"
                         >
-                            Calcular
+                            Continuar
                         </button>
                     </div>
                 </div>
@@ -10358,7 +10432,219 @@
         // Variables globales para GAS
         let currentGasTariff = '';
         let gasTariffsData = [];
+        let gasCalculationParams = {}; // Guardar parámetros de cálculo
         const GAS_SHEET_ID = '1P_OSzj-sqDgT7_3KAdp7Y6ySA3ytsFHQKFvfZjAjsjE';
+        
+        // Función: Actualizar UI según modo de selección
+        function updateGasSelectionUI() {
+            const selectionMode = document.querySelector('input[name="gas-selection-mode"]:checked').value;
+            const compareChecked = document.getElementById('gas-compare-indexed-fixed').checked;
+            const typeButtons = document.getElementById('gas-type-buttons');
+            const calculateBtn = document.getElementById('gas-calculate-btn');
+            const bestDescription = document.getElementById('gas-best-description');
+            
+            if (selectionMode === 'best') {
+                // Modo "Mejores tarifas"
+                if (compareChecked) {
+                    // Comparar indexada vs fija: solo mostrar botón continuar
+                    typeButtons.style.display = 'none';
+                    calculateBtn.textContent = 'Calcular';
+                    bestDescription.textContent = 'Comparará automáticamente la mejor tarifa indexada DRK vs la mejor tarifa fija DRK.';
+                } else {
+                    // Usuario elige tipo: mostrar botones
+                    typeButtons.style.display = 'block';
+                    calculateBtn.style.display = 'none'; // Ocultar botón principal
+                    bestDescription.textContent = 'Elige si quieres ver la mejor tarifa fija o indexada.';
+                }
+            } else {
+                // Modo "Elegir entre resultados"
+                typeButtons.style.display = 'none';
+                calculateBtn.style.display = 'block';
+                calculateBtn.textContent = 'Ver tarifas disponibles';
+            }
+        }
+        
+        // Función: Toggle modo de comparación
+        function toggleGasComparisonMode() {
+            updateGasSelectionUI();
+        }
+        
+        // Función: Calcular con tipo específico (fija o indexada)
+        function calculateGasWithType(type) {
+            // Validar inputs
+            const dias = parseFloat(document.getElementById('gas-dias').value);
+            const kwh = parseFloat(document.getElementById('gas-kwh').value);
+            const totalCliente = parseFloat(document.getElementById('gas-total-cliente').value);
+            
+            if (!dias || !kwh || !totalCliente) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+            
+            if (dias <= 0 || kwh <= 0 || totalCliente <= 0) {
+                alert('Los valores deben ser mayores a 0');
+                return;
+            }
+            
+            // Guardar parámetros
+            gasCalculationParams = { dias, kwh, totalCliente, type, mode: 'best' };
+            
+            // Cerrar modal y calcular
+            closeGasModal();
+            performGasCalculation();
+        }
+        
+        // Función: Proceder a cálculo según configuración
+        function proceedToGasCalculation() {
+            // Validar inputs
+            const dias = parseFloat(document.getElementById('gas-dias').value);
+            const kwh = parseFloat(document.getElementById('gas-kwh').value);
+            const totalCliente = parseFloat(document.getElementById('gas-total-cliente').value);
+            
+            if (!dias || !kwh || !totalCliente) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+            
+            if (dias <= 0 || kwh <= 0 || totalCliente <= 0) {
+                alert('Los valores deben ser mayores a 0');
+                return;
+            }
+            
+            const selectionMode = document.querySelector('input[name="gas-selection-mode"]:checked').value;
+            const compareChecked = document.getElementById('gas-compare-indexed-fixed').checked;
+            
+            // Guardar parámetros
+            gasCalculationParams = {
+                dias,
+                kwh,
+                totalCliente,
+                mode: selectionMode,
+                compareIndexedVsFixed: compareChecked
+            };
+            
+            // Cerrar modal
+            closeGasModal();
+            
+            if (selectionMode === 'best') {
+                // Modo "Mejores tarifas"
+                if (compareChecked) {
+                    // Comparar indexada vs fija automáticamente
+                    performGasCalculation();
+                }
+            } else {
+                // Modo "Elegir entre resultados" - mostrar selector de tarifas
+                showGasTariffSelector();
+            }
+        }
+        
+        // Función: Realizar cálculo de GAS
+        function performGasCalculation() {
+            const { dias, kwh, totalCliente, type, mode, compareIndexedVsFixed } = gasCalculationParams;
+            const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked').value;
+            
+            // Convertir RL1 → RL.1 para buscar en el Excel
+            const searchTariff = currentGasTariff.replace(/RL(\d)/, 'RL.$1');
+            
+            console.log(`🔍 Buscando tarifa: ${currentGasTariff} → ${searchTariff}`);
+            console.log(`📋 Modo: ${mode}, Tipo: ${type || 'auto'}, Comparar: ${compareIndexedVsFixed}`);
+            
+            // Buscar en la columna "Tarifa"
+            let filteredTariffs = gasTariffsData.filter(t => {
+                const tariffValue = (t.Tarifa || '').trim().toUpperCase();
+                const searchValue = searchTariff.toUpperCase();
+                return tariffValue === searchValue;
+            });
+            
+            console.log(`📊 Tarifas encontradas para ${searchTariff}: ${filteredTariffs.length}`);
+            
+            // Aplicar filtro DRK si corresponde
+            if (comparisonMode === 'drk_only' || comparisonMode === 'drk_prioritized') {
+                filteredTariffs = filteredTariffs.filter(t => {
+                    const name = (t.name || t.Name || '').toLowerCase();
+                    return name.includes('drk') || name.includes('direct');
+                });
+                console.log(`📊 Después de filtro DRK: ${filteredTariffs.length}`);
+            }
+            
+            if (filteredTariffs.length === 0) {
+                alert(`No se encontraron tarifas DRK para ${searchTariff}`);
+                return;
+            }
+            
+            let results = [];
+            
+            if (compareIndexedVsFixed) {
+                // MODO: Comparar Indexada vs Fija
+                // Indexada = name contiene "INDEX" o "DRK INDEX"
+                // Fija = name NO contiene "INDEX" o description contiene "FIJO"/"FIJA"
+                const indexedTariffs = filteredTariffs.filter(t => {
+                    const name = (t.name || t.Name || '').toUpperCase();
+                    return name.includes('INDEX');
+                });
+                
+                const fixedTariffs = filteredTariffs.filter(t => {
+                    const name = (t.name || t.Name || '').toUpperCase();
+                    const desc = (t.description || t.Description || '').toUpperCase();
+                    // Es FIJA si NO tiene INDEX en name, o si tiene FIJO/FIJA en descripción
+                    return !name.includes('INDEX') || desc.includes('FIJO') || desc.includes('FIJA');
+                });
+                
+                console.log(`🟠 Indexadas: ${indexedTariffs.length}, 🔵 Fijas: ${fixedTariffs.length}`);
+                
+                // Encontrar mejor indexada (normalmente solo hay 1 DRK INDEX por categoría)
+                if (indexedTariffs.length > 0) {
+                    const bestIndexed = indexedTariffs[0]; // Primera DRK INDEX
+                    results.push(calculateGasTariff(bestIndexed, dias, kwh, totalCliente));
+                }
+                
+                // Encontrar mejor fija
+                if (fixedTariffs.length > 0) {
+                    const calculatedFixed = fixedTariffs.map(t => calculateGasTariff(t, dias, kwh, totalCliente));
+                    const bestFixed = calculatedFixed.sort((a, b) => b.ahorro_anual - a.ahorro_anual)[0];
+                    results.push(bestFixed);
+                }
+                
+            } else if (mode === 'best' && type) {
+                // MODO: Mejores tarifas - Usuario eligió Fija o Indexada
+                let targetTariffs;
+                
+                if (type === 'fija') {
+                    // Buscar FIJAS: name NO contiene INDEX, o description contiene FIJO
+                    targetTariffs = filteredTariffs.filter(t => {
+                        const name = (t.name || t.Name || '').toUpperCase();
+                        const desc = (t.description || t.Description || '').toUpperCase();
+                        return !name.includes('INDEX') || desc.includes('FIJO') || desc.includes('FIJA');
+                    });
+                } else {
+                    // Buscar INDEXADAS: name contiene INDEX
+                    targetTariffs = filteredTariffs.filter(t => {
+                        const name = (t.name || t.Name || '').toUpperCase();
+                        return name.includes('INDEX');
+                    });
+                }
+                
+                console.log(`📊 Tarifas ${type}: ${targetTariffs.length}`);
+                
+                if (targetTariffs.length === 0) {
+                    alert(`No se encontraron tarifas ${type} para esta categoría`);
+                    return;
+                }
+                
+                // Calcular todas y encontrar la mejor
+                const calculated = targetTariffs.map(t => calculateGasTariff(t, dias, kwh, totalCliente));
+                const best = calculated.sort((a, b) => b.ahorro_anual - a.ahorro_anual)[0];
+                results = [best];
+            }
+            
+            if (results.length === 0) {
+                alert('No se pudieron calcular resultados');
+                return;
+            }
+            
+            // Mostrar resultados
+            showGasResults(results, dias, kwh, totalCliente);
+        }
         
         // Función: Seleccionar tarifa de GAS y abrir modal
         function selectGasTariff(tariff) {
@@ -10366,6 +10652,16 @@
             // Mostrar con formato correcto (Rl1 en lugar de RL1)
             const displayTariff = tariff.charAt(0).toUpperCase() + tariff.charAt(1).toLowerCase() + tariff.slice(2);
             document.getElementById('gas-selected-tariff').textContent = displayTariff;
+            
+            // Resetear formulario
+            document.getElementById('gas-dias').value = '';
+            document.getElementById('gas-kwh').value = '';
+            document.getElementById('gas-total-cliente').value = '';
+            document.getElementById('gas-compare-indexed-fixed').checked = false;
+            document.querySelector('input[name="gas-selection-mode"][value="best"]').checked = true;
+            
+            // Actualizar UI
+            updateGasSelectionUI();
             
             // Mostrar modal
             document.getElementById('gas-manual-input-modal').classList.remove('hidden');
@@ -10377,6 +10673,149 @@
             }
             
             console.log(`📋 Tarifa seleccionada: ${tariff} (buscará: ${tariff.toLowerCase()})`);
+        }
+        
+        // Función: Mostrar selector de tarifas manual
+        function showGasTariffSelector() {
+            const { dias, kwh, totalCliente, compareIndexedVsFixed } = gasCalculationParams;
+            const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked').value;
+            const searchTariff = currentGasTariff.replace(/RL(\d)/, 'RL.$1');
+            
+            // Filtrar tarifas disponibles
+            let filteredTariffs = gasTariffsData.filter(t => {
+                const tariffValue = (t.Tarifa || '').trim().toUpperCase();
+                return tariffValue === searchTariff.toUpperCase();
+            });
+            
+            // Aplicar filtro DRK si corresponde
+            if (comparisonMode === 'drk_only' || comparisonMode === 'drk_prioritized') {
+                filteredTariffs = filteredTariffs.filter(t => {
+                    const name = (t.name || t.Name || '').toLowerCase();
+                    return name.includes('drk') || name.includes('direct');
+                });
+            }
+            
+            // Si comparar indexada vs fija, solo mostrar FIJAS para selección manual
+            if (compareIndexedVsFixed) {
+                filteredTariffs = filteredTariffs.filter(t => {
+                    const name = (t.name || t.Name || '').toUpperCase();
+                    const desc = (t.description || t.Description || '').toUpperCase();
+                    // Es FIJA si NO tiene INDEX en name, o si tiene FIJO/FIJA en descripción
+                    return !name.includes('INDEX') || desc.includes('FIJO') || desc.includes('FIJA');
+                });
+            }
+            
+            if (filteredTariffs.length === 0) {
+                alert('No hay tarifas disponibles para selección manual');
+                return;
+            }
+            
+            // Crear UI de selección
+            const container = document.getElementById('gas-results-container');
+            let html = `
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-drk-900 mb-4">Selecciona las tarifas a comparar:</h3>
+                    <p class="text-sm text-slate-600 mb-4">
+                        ${compareIndexedVsFixed ? 'La tarifa indexada DRK se comparará automáticamente con las tarifas fijas que selecciones.' : 'Selecciona una o más tarifas para comparar.'}
+                    </p>
+                    
+                    <div class="space-y-3">
+            `;
+            
+            filteredTariffs.forEach((tariff, index) => {
+                const name = tariff.name || tariff.Name;
+                const desc = tariff.description || tariff.Description || name;
+                // Identificar si es FIJA o INDEXADA por la columna name
+                const isIndexed = (name.toUpperCase().includes('INDEX'));
+                const typeLabel = isIndexed ? '🟠 INDEXADA' : '🔵 FIJA';
+                
+                html += `
+                    <label class="flex items-center gap-3 p-4 border-2 border-slate-200 rounded-lg hover:border-red-300 cursor-pointer transition">
+                        <input 
+                            type="checkbox" 
+                            class="gas-tariff-checkbox w-5 h-5 text-red-600 rounded"
+                            data-index="${index}"
+                        >
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-drk-900">${name}</span>
+                                <span class="text-xs px-2 py-1 rounded ${isIndexed ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}">${typeLabel}</span>
+                            </div>
+                            <p class="text-sm text-slate-600">${desc}</p>
+                        </div>
+                    </label>
+                `;
+            });
+            
+            html += `
+                    </div>
+                    
+                    <button 
+                        onclick="calculateSelectedGasTariffs()"
+                        class="w-full mt-6 px-6 py-3 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 transition"
+                    >
+                        Calcular tarifas seleccionadas
+                    </button>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            
+            // Guardar tarifas disponibles para cálculo posterior
+            window.gasAvailableTariffs = filteredTariffs;
+            
+            // Mostrar pantalla de resultados
+            hideAllScreens();
+            document.getElementById('screen-gas-results').classList.add('active');
+        }
+        
+        // Función: Calcular tarifas seleccionadas manualmente
+        function calculateSelectedGasTariffs() {
+            const checkboxes = document.querySelectorAll('.gas-tariff-checkbox:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('Selecciona al menos una tarifa');
+                return;
+            }
+            
+            const { dias, kwh, totalCliente, compareIndexedVsFixed } = gasCalculationParams;
+            const selectedTariffs = Array.from(checkboxes).map(cb => {
+                const index = parseInt(cb.dataset.index);
+                return window.gasAvailableTariffs[index];
+            });
+            
+            let results = selectedTariffs.map(t => calculateGasTariff(t, dias, kwh, totalCliente));
+            
+            // Si comparar indexada vs fija, agregar la indexada DRK
+            if (compareIndexedVsFixed) {
+                const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked').value;
+                const searchTariff = currentGasTariff.replace(/RL(\d)/, 'RL.$1');
+                
+                let allTariffs = gasTariffsData.filter(t => {
+                    const tariffValue = (t.Tarifa || '').trim().toUpperCase();
+                    return tariffValue === searchTariff.toUpperCase();
+                });
+                
+                if (comparisonMode === 'drk_only' || comparisonMode === 'drk_prioritized') {
+                    allTariffs = allTariffs.filter(t => {
+                        const name = (t.name || t.Name || '').toLowerCase();
+                        return name.includes('drk') || name.includes('direct');
+                    });
+                }
+                
+                // Buscar indexada por name (contiene INDEX)
+                const indexedTariff = allTariffs.find(t => {
+                    const name = (t.name || t.Name || '').toUpperCase();
+                    return name.includes('INDEX');
+                });
+                
+                if (indexedTariff) {
+                    results.unshift(calculateGasTariff(indexedTariff, dias, kwh, totalCliente));
+                }
+            }
+            
+            // Mostrar resultados
+            showGasResults(results, dias, kwh, totalCliente);
         }
         
         // Función: Cerrar modal
@@ -10489,78 +10928,12 @@
             return data;
         }
         
+        /* FUNCIÓN ANTIGUA - YA NO SE USA
         // Función: Realizar cálculos de GAS
         function calculateGas() {
-            // Obtener valores del formulario
-            const dias = parseFloat(document.getElementById('gas-dias').value);
-            const kwh = parseFloat(document.getElementById('gas-kwh').value);
-            const totalCliente = parseFloat(document.getElementById('gas-total-cliente').value);
-            
-            // Validar inputs
-            if (!dias || !kwh || !totalCliente) {
-                alert('Por favor, completa todos los campos');
-                return;
-            }
-            
-            if (dias <= 0 || kwh <= 0 || totalCliente <= 0) {
-                alert('Los valores deben ser mayores a 0');
-                return;
-            }
-            
-            // Filtrar tarifas según modo de comparación y tarifa seleccionada
-            const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked').value;
-            
-            // Convertir RL1 → RL.1 para buscar en el Excel
-            // El Excel tiene formato "RL.1", "RL.2", etc.
-            const searchTariff = currentGasTariff.replace(/RL(\d)/, 'RL.$1');
-            
-            console.log(`🔍 Buscando tarifa: ${currentGasTariff} → ${searchTariff}`);
-            
-            // Buscar en la columna "Tarifa" comparando sin espacios y case-insensitive
-            let filteredTariffs = gasTariffsData.filter(t => {
-                const tariffValue = (t.Tarifa || '').trim().toUpperCase();
-                const searchValue = searchTariff.toUpperCase();
-                return tariffValue === searchValue;
-            });
-            
-            console.log(`📊 Tarifas encontradas: ${filteredTariffs.length}`);
-            if (filteredTariffs.length > 0) {
-                console.log('📋 Primeras tarifas encontradas:', filteredTariffs.slice(0, 3).map(t => ({
-                    name: t.name || t.Name,
-                    description: t.description || t.Description,
-                    tarifa: t.Tarifa
-                })));
-            }
-            
-            // Aplicar filtro DRK si corresponde
-            if (comparisonMode === 'drk_only' || comparisonMode === 'drk_prioritized') {
-                const beforeFilter = filteredTariffs.length;
-                filteredTariffs = filteredTariffs.filter(t => {
-                    const name = (t.name || t.Name || '').toLowerCase();
-                    return name.includes('drk') || name.includes('direct');
-                });
-                console.log(`📊 Filtro DRK: ${beforeFilter} → ${filteredTariffs.length} tarifas`);
-            }
-            
-            if (filteredTariffs.length === 0) {
-                alert(`No se encontraron tarifas para ${searchTariff}. Verifica que el Excel tenga datos.`);
-                console.error('❌ No hay tarifas disponibles');
-                console.log('📊 Total datos cargados:', gasTariffsData.length);
-                console.log('🏷️ Tarifas únicas en datos:', [...new Set(gasTariffsData.map(d => d.Tarifa))]);
-                return;
-            }
-            
-            // Calcular cada tarifa
-            const results = filteredTariffs.map(tariff => {
-                return calculateGasTariff(tariff, dias, kwh, totalCliente);
-            });
-            
-            // Mostrar resultados
-            showGasResults(results, dias, kwh, totalCliente);
-            
-            // Cerrar modal
-            closeGasModal();
+            // ... código comentado ...
         }
+        */
         
         // Función: Calcular una tarifa específica de GAS
         function calculateGasTariff(tariff, dias, kwh, totalCliente) {
