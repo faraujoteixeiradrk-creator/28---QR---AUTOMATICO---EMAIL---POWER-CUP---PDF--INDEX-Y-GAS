@@ -10737,12 +10737,23 @@
         }
         
         // Función: Renderizar selector de tarifas con ordenamiento
-        function renderGasTariffSelector(sortBy = 'ahorro-desc') {
+        function renderGasTariffSelector(sortBy = 'ahorro-desc', searchText = '') {
             const calculatedTariffs = window.gasCalculatedTariffs;
             const compareIndexedVsFixed = gasCalculationParams.compareIndexedVsFixed;
             
+            // Filtrar por texto de búsqueda
+            let filteredBySearch = calculatedTariffs;
+            if (searchText && searchText.trim() !== '') {
+                const search = searchText.toLowerCase();
+                filteredBySearch = calculatedTariffs.filter(item => {
+                    const name = (item.name || '').toLowerCase();
+                    const desc = (item.description || '').toLowerCase();
+                    return name.includes(search) || desc.includes(search);
+                });
+            }
+            
             // Ordenar según criterio
-            let sortedTariffs = [...calculatedTariffs];
+            let sortedTariffs = [...filteredBySearch];
             
             if (sortBy === 'ahorro-desc') {
                 sortedTariffs.sort((a, b) => b.ahorro - a.ahorro);
@@ -10761,24 +10772,47 @@
                         ${compareIndexedVsFixed ? 'La tarifa indexada DRK se comparará automáticamente con las tarifas fijas que selecciones.' : 'Selecciona una o más tarifas para comparar.'}
                     </p>
                     
+                    <!-- Buscador de texto -->
+                    <div class="mb-4 p-4 bg-slate-50 rounded-lg">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">🔍 Buscar comercializadora:</label>
+                        <div class="flex gap-2">
+                            <input 
+                                type="text" 
+                                id="gas-search-input"
+                                placeholder="Escribe el nombre de la comercializadora..."
+                                value="${searchText}"
+                                oninput="renderGasTariffSelector('${sortBy}', this.value)"
+                                class="flex-1 px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-red-500 focus:outline-none"
+                            >
+                            <button 
+                                onclick="clearGasSearch()"
+                                class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold hover:bg-slate-300 transition"
+                                title="Limpiar búsqueda"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        ${searchText ? `<p class="text-xs text-slate-500 mt-2">Mostrando ${sortedTariffs.length} de ${calculatedTariffs.length} tarifas</p>` : ''}
+                    </div>
+                    
                     <!-- Filtros de ordenamiento -->
                     <div class="mb-4 p-4 bg-slate-50 rounded-lg">
                         <label class="block text-sm font-bold text-slate-700 mb-2">Ordenar por:</label>
                         <div class="flex gap-2 flex-wrap">
                             <button 
-                                onclick="renderGasTariffSelector('ahorro-desc')"
+                                onclick="renderGasTariffSelector('ahorro-desc', document.getElementById('gas-search-input').value)"
                                 class="px-4 py-2 rounded-lg text-sm font-bold transition ${sortBy === 'ahorro-desc' ? 'bg-green-500 text-white' : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-green-300'}"
                             >
                                 💰 Mayor ahorro primero
                             </button>
                             <button 
-                                onclick="renderGasTariffSelector('ahorro-asc')"
+                                onclick="renderGasTariffSelector('ahorro-asc', document.getElementById('gas-search-input').value)"
                                 class="px-4 py-2 rounded-lg text-sm font-bold transition ${sortBy === 'ahorro-asc' ? 'bg-red-500 text-white' : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-red-300'}"
                             >
                                 📉 Menor ahorro primero
                             </button>
                             <button 
-                                onclick="renderGasTariffSelector('nombre')"
+                                onclick="renderGasTariffSelector('nombre', document.getElementById('gas-search-input').value)"
                                 class="px-4 py-2 rounded-lg text-sm font-bold transition ${sortBy === 'nombre' ? 'bg-blue-500 text-white' : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-blue-300'}"
                             >
                                 🔤 Por nombre
@@ -10786,39 +10820,51 @@
                         </div>
                     </div>
                     
+                    ${sortedTariffs.length === 0 ? `
+                    <div class="p-8 text-center bg-slate-50 rounded-lg">
+                        <p class="text-slate-500 text-lg">No se encontraron tarifas que coincidan con "${searchText}"</p>
+                        <button 
+                            onclick="clearGasSearch()"
+                            class="mt-4 px-6 py-2 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 transition"
+                        >
+                            Limpiar búsqueda
+                        </button>
+                    </div>
+                    ` : `
                     <div class="space-y-3">
             `;
             
-            sortedTariffs.forEach((item, index) => {
-                const typeLabel = item.isIndexed ? '🟠 INDEXADA' : '🔵 FIJA';
-                const ahorroAnual = item.ahorro;
-                const isPositive = ahorroAnual > 0;
-                const ahorroClass = isPositive ? 'text-green-600' : 'text-red-600';
-                const ahorroSign = isPositive ? '+' : '';
+            if (sortedTariffs.length > 0) {
+                sortedTariffs.forEach((item, index) => {
+                    const typeLabel = item.isIndexed ? '🟠 INDEXADA' : '🔵 FIJA';
+                    const ahorroAnual = item.ahorro;
+                    const isPositive = ahorroAnual > 0;
+                    const ahorroClass = isPositive ? 'text-green-600' : 'text-red-600';
+                    const ahorroSign = isPositive ? '+' : '';
+                    
+                    html += `
+                        <label class="flex items-center gap-3 p-4 border-2 ${isPositive ? 'border-green-200 bg-green-50' : 'border-slate-200'} rounded-lg hover:border-red-300 cursor-pointer transition">
+                            <input 
+                                type="checkbox" 
+                                class="gas-tariff-checkbox w-5 h-5 text-red-600 rounded flex-shrink-0"
+                                data-index="${index}"
+                            >
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-drk-900">${item.name}</span>
+                                    <span class="text-xs px-2 py-1 rounded ${item.isIndexed ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}">${typeLabel}</span>
+                                </div>
+                                <p class="text-sm text-slate-600">${item.description}</p>
+                            </div>
+                            <div class="flex flex-col items-end text-right flex-shrink-0 ml-2">
+                                <span class="text-xs text-slate-500 font-semibold">Ahorro anual:</span>
+                                <span class="text-lg font-black ${ahorroClass}">${ahorroSign}${ahorroAnual.toFixed(2)}€</span>
+                            </div>
+                        </label>
+                    `;
+                });
                 
                 html += `
-                    <label class="flex items-center gap-3 p-4 border-2 ${isPositive ? 'border-green-200 bg-green-50' : 'border-slate-200'} rounded-lg hover:border-red-300 cursor-pointer transition">
-                        <input 
-                            type="checkbox" 
-                            class="gas-tariff-checkbox w-5 h-5 text-red-600 rounded flex-shrink-0"
-                            data-index="${index}"
-                        >
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="font-bold text-drk-900">${item.name}</span>
-                                <span class="text-xs px-2 py-1 rounded ${item.isIndexed ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}">${typeLabel}</span>
-                            </div>
-                            <p class="text-sm text-slate-600">${item.description}</p>
-                        </div>
-                        <div class="flex flex-col items-end text-right flex-shrink-0 ml-2">
-                            <span class="text-xs text-slate-500 font-semibold">Ahorro anual:</span>
-                            <span class="text-lg font-black ${ahorroClass}">${ahorroSign}${ahorroAnual.toFixed(2)}€</span>
-                        </div>
-                    </label>
-                `;
-            });
-            
-            html += `
                     </div>
                     
                     <button 
@@ -10827,13 +10873,29 @@
                     >
                         Calcular tarifas seleccionadas
                     </button>
+                    `;
+            }
+            
+            html += `
                 </div>
             `;
             
             container.innerHTML = html;
             
-            // Guardar ordenamiento actual
+            // Guardar ordenamiento y tarifas actuales
             window.gasSortedTariffs = sortedTariffs;
+            window.gasCurrentSortBy = sortBy;
+        }
+        
+        // Función: Limpiar búsqueda de tarifas
+        function clearGasSearch() {
+            const sortBy = window.gasCurrentSortBy || 'ahorro-desc';
+            renderGasTariffSelector(sortBy, '');
+            // Enfocar el input de búsqueda
+            setTimeout(() => {
+                const input = document.getElementById('gas-search-input');
+                if (input) input.focus();
+            }, 100);
         }
         
         // Función: Calcular tarifas seleccionadas manualmente
