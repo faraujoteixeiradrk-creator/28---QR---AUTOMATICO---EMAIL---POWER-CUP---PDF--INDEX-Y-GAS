@@ -10564,17 +10564,25 @@
         
         // Función: Calcular una tarifa específica de GAS
         function calculateGasTariff(tariff, dias, kwh, totalCliente) {
+            // Función auxiliar para convertir string europeo a número
+            const parseEuropeanNumber = (value) => {
+                if (!value) return 0;
+                // Convertir coma a punto y luego parsear
+                const cleanValue = String(value).replace(',', '.');
+                return parseFloat(cleanValue) || 0;
+            };
+            
             // Extraer datos de la tarifa (usando nombres exactos del Excel)
-            const p1_price = parseFloat(tariff.p1_price || tariff.P1_price || 0);
-            const descuento_energia = (parseFloat(tariff.Descuento_Energia || 0)) / 100;
-            const p_fijo_anual = parseFloat(tariff.p_fijo_1 || tariff.P_fijo_1 || 0);
-            const descuento_potencia = (parseFloat(tariff.Descuento_Potencia || 0)) / 100;
+            const p1_price = parseEuropeanNumber(tariff.p1_price || tariff.P1_price);
+            const descuento_energia = parseEuropeanNumber(tariff.Descuento_Energia) / 100;
+            const p_fijo_anual = parseEuropeanNumber(tariff.p_fijo_1 || tariff.P_fijo_1);
+            const descuento_potencia = parseEuropeanNumber(tariff.Descuento_Potencia) / 100;
             
             console.log('🧮 Calculando:', {
                 name: tariff.name || tariff.Name,
-                p1_price,
+                p1_price: p1_price + ' (original: ' + (tariff.p1_price || tariff.P1_price) + ')',
                 descuento_energia: (descuento_energia * 100) + '%',
-                p_fijo_anual,
+                p_fijo_anual: p_fijo_anual + ' (original: ' + (tariff.p_fijo_1 || tariff.P_fijo_1) + ')',
                 descuento_potencia: (descuento_potencia * 100) + '%'
             });
             
@@ -10606,6 +10614,13 @@
             const ahorro_periodo = totalCliente - total;
             const ahorro_mensual = dias !== 30 ? (ahorro_periodo * 30) / dias : ahorro_periodo;
             const ahorro_anual = ahorro_mensual * 12;
+            
+            console.log('💰 Resultado:', {
+                total_fijo: total_fijo.toFixed(2) + '€',
+                total_energia: total_energia.toFixed(2) + '€',
+                total: total.toFixed(2) + '€',
+                ahorro_anual: ahorro_anual.toFixed(2) + '€'
+            });
             
             return {
                 name: tariff.name || tariff.Name,
