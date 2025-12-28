@@ -10730,6 +10730,10 @@
             
             // Renderizar UI con ordenamiento por defecto (mayor ahorro)
             renderGasTariffSelector('ahorro-desc');
+            
+            // Mostrar pantalla de resultados
+            hideAllScreens();
+            document.getElementById('screen-gas-results').classList.add('active');
         }
         
         // Función: Renderizar selector de tarifas con ordenamiento
