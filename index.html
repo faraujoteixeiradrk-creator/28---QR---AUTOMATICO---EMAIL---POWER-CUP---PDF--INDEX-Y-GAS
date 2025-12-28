@@ -10423,11 +10423,11 @@
             const lines = csvText.split('\n');
             if (lines.length === 0) return [];
             
-            // Limpiar y extraer headers
+            // Limpiar y extraer headers (mantener nombres exactos)
             const headerLine = lines[0];
             const headers = headerLine.split(',').map(h => h.trim().replace(/^"|"$/g, ''));
             
-            console.log('📋 Headers encontrados:', headers);
+            console.log('📋 Headers del Excel:', headers);
             
             const data = [];
             
@@ -10452,20 +10452,30 @@
                 }
                 values.push(currentValue.trim().replace(/^"|"$/g, ''));
                 
-                // Crear objeto
+                // Crear objeto manteniendo nombres exactos de headers
                 const row = {};
                 headers.forEach((header, index) => {
                     row[header] = values[index] || '';
                 });
                 
-                // Solo agregar si tiene datos válidos
-                // Verificar que tenga al menos Name y P1_price
-                if (row.Name && row.P1_price && row.Tarifa) {
+                // Verificar que tenga datos válidos
+                // Columnas críticas: name, p1_price, Tarifa
+                const hasName = row.name || row.Name;
+                const hasPrice = row.p1_price || row.P1_price;
+                const hasTarifa = row.Tarifa;
+                
+                if (hasName && hasPrice && hasTarifa) {
                     data.push(row);
                     
-                    // Log de la primera fila para debug
-                    if (data.length === 1) {
-                        console.log('📊 Ejemplo de fila:', row);
+                    // Log de las primeras 3 filas para debug
+                    if (data.length <= 3) {
+                        console.log(`📊 Fila ${data.length}:`, {
+                            name: row.name || row.Name,
+                            description: row.description || row.Description,
+                            Tarifa: row.Tarifa,
+                            p1_price: row.p1_price,
+                            p_fijo_1: row.p_fijo_1
+                        });
                     }
                 }
             }
@@ -10473,7 +10483,7 @@
             console.log(`✅ Parseadas ${data.length} tarifas de GAS`);
             
             // Mostrar las tarifas únicas encontradas
-            const uniqueTariffs = [...new Set(data.map(d => d.Tarifa))];
+            const uniqueTariffs = [...new Set(data.map(d => d.Tarifa))].sort();
             console.log('🏷️ Tarifas únicas encontradas:', uniqueTariffs);
             
             return data;
@@ -10500,28 +10510,43 @@
             // Filtrar tarifas según modo de comparación y tarifa seleccionada
             const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked').value;
             
-            // Buscar en la columna "Tarifa" con comparación case-insensitive
+            // Convertir RL1 → RL.1 para buscar en el Excel
+            // El Excel tiene formato "RL.1", "RL.2", etc.
+            const searchTariff = currentGasTariff.replace(/RL(\d)/, 'RL.$1');
+            
+            console.log(`🔍 Buscando tarifa: ${currentGasTariff} → ${searchTariff}`);
+            
+            // Buscar en la columna "Tarifa" comparando sin espacios y case-insensitive
             let filteredTariffs = gasTariffsData.filter(t => {
-                const tariffValue = (t.Tarifa || '').toLowerCase();
-                const selectedTariff = currentGasTariff.toLowerCase();
-                return tariffValue === selectedTariff;
+                const tariffValue = (t.Tarifa || '').trim().toUpperCase();
+                const searchValue = searchTariff.toUpperCase();
+                return tariffValue === searchValue;
             });
             
-            console.log(`🔍 Buscando tarifas para: ${currentGasTariff}`);
             console.log(`📊 Tarifas encontradas: ${filteredTariffs.length}`);
+            if (filteredTariffs.length > 0) {
+                console.log('📋 Primeras tarifas encontradas:', filteredTariffs.slice(0, 3).map(t => ({
+                    name: t.name || t.Name,
+                    description: t.description || t.Description,
+                    tarifa: t.Tarifa
+                })));
+            }
             
             // Aplicar filtro DRK si corresponde
             if (comparisonMode === 'drk_only' || comparisonMode === 'drk_prioritized') {
-                filteredTariffs = filteredTariffs.filter(t => 
-                    t.Name && (t.Name.toLowerCase().includes('drk') || t.Name.toLowerCase().includes('direct'))
-                );
-                console.log(`📊 Después de filtro DRK: ${filteredTariffs.length}`);
+                const beforeFilter = filteredTariffs.length;
+                filteredTariffs = filteredTariffs.filter(t => {
+                    const name = (t.name || t.Name || '').toLowerCase();
+                    return name.includes('drk') || name.includes('direct');
+                });
+                console.log(`📊 Filtro DRK: ${beforeFilter} → ${filteredTariffs.length} tarifas`);
             }
             
             if (filteredTariffs.length === 0) {
-                alert('No se encontraron tarifas para ' + currentGasTariff + '. Verifica que el Excel tenga datos.');
+                alert(`No se encontraron tarifas para ${searchTariff}. Verifica que el Excel tenga datos.`);
                 console.error('❌ No hay tarifas disponibles');
-                console.log('Datos cargados:', gasTariffsData);
+                console.log('📊 Total datos cargados:', gasTariffsData.length);
+                console.log('🏷️ Tarifas únicas en datos:', [...new Set(gasTariffsData.map(d => d.Tarifa))]);
                 return;
             }
             
@@ -10539,11 +10564,19 @@
         
         // Función: Calcular una tarifa específica de GAS
         function calculateGasTariff(tariff, dias, kwh, totalCliente) {
-            // Extraer datos de la tarifa
-            const p1_price = parseFloat(tariff.P1_price) || 0;
-            const descuento_energia = (parseFloat(tariff['Descuento Energía']) || 0) / 100;
-            const p_fijo_anual = parseFloat(tariff.P_fijo_1) || 0;
-            const descuento_potencia = (parseFloat(tariff['Descuento Potencia']) || 0) / 100;
+            // Extraer datos de la tarifa (usando nombres exactos del Excel)
+            const p1_price = parseFloat(tariff.p1_price || tariff.P1_price || 0);
+            const descuento_energia = (parseFloat(tariff.Descuento_Energia || 0)) / 100;
+            const p_fijo_anual = parseFloat(tariff.p_fijo_1 || tariff.P_fijo_1 || 0);
+            const descuento_potencia = (parseFloat(tariff.Descuento_Potencia || 0)) / 100;
+            
+            console.log('🧮 Calculando:', {
+                name: tariff.name || tariff.Name,
+                p1_price,
+                descuento_energia: (descuento_energia * 100) + '%',
+                p_fijo_anual,
+                descuento_potencia: (descuento_potencia * 100) + '%'
+            });
             
             // 1. TÉRMINO FIJO
             const p_fijo_diario = p_fijo_anual / 365;
@@ -10575,8 +10608,8 @@
             const ahorro_anual = ahorro_mensual * 12;
             
             return {
-                name: tariff.Name,
-                descripcion: tariff.Descripción || tariff.Name,
+                name: tariff.name || tariff.Name,
+                descripcion: tariff.description || tariff.Description || tariff.name || tariff.Name,
                 tarifa: tariff.Tarifa,
                 // Desglose
                 p_fijo_diario: p_fijo_diario,
