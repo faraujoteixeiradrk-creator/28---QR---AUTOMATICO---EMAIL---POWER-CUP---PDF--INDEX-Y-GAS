@@ -205,9 +205,74 @@
     <!-- Main Content Area -->
     <div id="app" class="w-full max-w-lg mx-auto p-4 md:p-6 flex-grow">
 
+        <!-- 0. Service Selection View (NUEVA - Pantalla Inicial) -->
+        <div id="service-selection-view" class="fade-in flex flex-col items-center justify-center min-h-[60vh] py-8">
+            <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl w-full border-t-4 border-drk-500">
+                <div class="w-16 h-16 bg-drk-50 rounded-full flex items-center justify-center mx-auto mb-4 text-drk-600 shadow-inner">
+                    <svg class="w-8 h-8" viewBox="0 0 100 100" fill="none">
+                        <style>.drk-ring{fill:none;stroke-width:10;stroke-linecap:round;}</style>
+                        <circle class="drk-ring" cx="45" cy="45" r="35" stroke="#E50000"/>
+                        <circle class="drk-ring" cx="55" cy="55" r="35" stroke="#FFCC00"/>
+                        <circle class="drk-ring" cx="45" cy="55" r="35" stroke="#0079C1"/>
+                        <circle class="drk-ring" cx="55" cy="45" r="35" stroke="#00A859"/>
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black text-drk-900 mb-2 text-center">DRK COMPARADOR</h2>
+                <p class="text-slate-500 mb-6 text-center">Selecciona el modo de comparación y el tipo de suministro.</p>
+                
+                <!-- Comparison Mode Selector -->
+                <div class="mb-8 pt-4 border-t border-slate-200">
+                    <p class="text-sm font-bold text-drk-800 mb-3 text-center uppercase tracking-wider">MODO DE COMPARACIÓN</p>
+                    <div class="flex flex-wrap justify-center gap-2 text-sm">
+                        <label class="mode-selector flex-1 px-2 py-2 rounded-lg cursor-pointer transition border-2 border-drk-300 text-drk-700 bg-white hover:bg-drk-100 hover:border-drk-400">
+                            <input type="radio" name="comparison_mode" value="drk_only" class="hidden">
+                            <span class="font-semibold flex items-center justify-between w-full">DRK Únicamente<svg class="w-4 h-4 ml-1 checkmark-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                        </label>
+                        <label class="mode-selector flex-1 px-2 py-2 rounded-lg cursor-pointer transition border-2 border-drk-500 text-white bg-drk-500 hover:bg-drk-600">
+                            <input type="radio" name="comparison_mode" value="drk_prioritized" class="hidden" checked>
+                            <span class="font-semibold flex items-center justify-between w-full">DRK Prioritario<svg class="w-4 h-4 ml-1 checkmark-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                        </label>
+                        <label class="mode-selector flex-1 px-2 py-2 rounded-lg cursor-pointer transition border-2 border-powercup-300 text-powercup-700 bg-white hover:bg-powercup-100 hover:border-powercup-400">
+                            <input type="radio" name="comparison_mode" value="overall_best" class="hidden">
+                            <span class="font-black flex flex-col items-center justify-center w-full leading-tight">
+                                <span class="text-base">POWER CUP</span><span class="text-xs font-semibold -mt-0.5">Global</span>
+                            </span>
+                            <svg class="w-4 h-4 ml-1 checkmark-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Service Type Selector (2 BOTONES: ELECTRICIDAD y GAS) -->
+                <div class="pt-4 border-t border-slate-200">
+                    <p class="text-sm font-bold text-drk-800 mb-4 text-center uppercase tracking-wider">TIPO DE SUMINISTRO</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- ELECTRICIDAD -->
+                        <button onclick="showElectricity()" class="service-type-btn border-4 border-slate-300 bg-white hover:border-drk-400 hover:bg-drk-50" style="padding: 2rem; border-radius: 1.5rem; text-align: center; cursor: pointer; transition: all 0.4s ease;">
+                            <div class="text-5xl mb-3">⚡</div>
+                            <div class="text-xl font-black text-drk-900">ELECTRICIDAD</div>
+                            <div class="text-xs text-slate-600 mt-2">MULTICUPS · 2.0 TD · 3.0 TD</div>
+                        </button>
+                        
+                        <!-- GAS -->
+                        <button onclick="showGas()" class="service-type-btn border-4 border-slate-300 bg-white hover:border-red-400 hover:bg-red-50" style="padding: 2rem; border-radius: 1.5rem; text-align: center; cursor: pointer; transition: all 0.4s ease;">
+                            <div class="text-5xl mb-3">🔥</div>
+                            <div class="text-xl font-black text-red-600">GAS</div>
+                            <div class="text-xs text-slate-600 mt-2">RL1 · RL2 · RL3 · RL4 · RL5 · RL6</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 1. Landing View -->
-        <div id="landing-view" class="fade-in flex flex-col items-center justify-center min-h-[60vh] py-8">
+        <div id="landing-view" class="fade-in hidden flex flex-col items-center justify-center min-h-[60vh] py-8">
             <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl w-full border-t-4 border-drk-500" id="landing-card">
+                <!-- Botón Volver -->
+                <button onclick="backToHome()" class="mb-4 text-sm text-slate-500 hover:text-drk-600 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    Volver
+                </button>
+                
                 <div id="landing-icon-bg" class="w-16 h-16 bg-drk-50 rounded-full flex items-center justify-center mx-auto mb-4 text-drk-600 shadow-inner">
                     <svg class="w-8 h-8" viewBox="0 0 100 100" fill="none">
                         <style>.drk-ring{fill:none;stroke-width:10;stroke-linecap:round;}</style>
@@ -247,7 +312,7 @@
                     <p class="text-sm font-bold text-drk-800 mb-3 text-center uppercase tracking-wider">TIPO DE SUMINISTRO</p>
                     <div class="grid grid-cols-2 gap-4">
                         <!-- ELECTRICIDAD -->
-                        <button id="select-electricity" onclick="selectServiceType('electricity')" class="service-type-btn border-4 border-slate-300 bg-white hover:border-drk-400 hover:bg-drk-50">
+                        <button id="select-electricity" onclick="selectServiceType('electricity')" class="service-type-btn service-active border-4 border-drk-500 bg-drk-50">
                             <div class="text-5xl mb-3">⚡</div>
                             <div class="text-xl font-black text-drk-900">ELECTRICIDAD</div>
                             <div class="text-xs text-slate-600 mt-2">MULTICUPS · 2.0 TD · 3.0 TD</div>
@@ -264,7 +329,7 @@
                 
                 
                 <!-- Tariff Selection Buttons (ELECTRICIDAD) -->
-                <div id="electricity-tariffs" class="w-full space-y-4 hidden">
+                <div id="electricity-tariffs" class="w-full space-y-4">
                     <button onclick="selectTariffType('MULTICUPS')" class="tariff-select-btn group">
                         <div class="icon-wrapper bg-drk-50 text-drk-600 group-hover:bg-drk-100">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/></svg>
@@ -382,6 +447,92 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+        
+        <!-- 1b. Gas View (NUEVA) -->
+        <div id="gas-view" class="fade-in hidden flex flex-col items-center justify-center min-h-[60vh] py-8">
+            <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl w-full border-t-4 border-red-500">
+                <!-- Botón Volver -->
+                <button onclick="backToHome()" class="mb-4 text-sm text-slate-500 hover:text-red-600 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    Volver
+                </button>
+                
+                <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 shadow-inner">
+                    <span class="text-4xl">🔥</span>
+                </div>
+                <h2 class="text-3xl font-black text-red-600 mb-2 text-center">GAS</h2>
+                <p class="text-slate-500 mb-6 text-center">Selecciona la regulación de gas que deseas analizar.</p>
+                
+                <!-- Gas Tariff Selection Buttons -->
+                <div class="w-full space-y-4">
+                    <button onclick="alert('GAS RL1 - En desarrollo')" class="tariff-select-btn group">
+                        <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-lg font-bold text-drk-900">RL1</span>
+                            <span class="block text-xs text-slate-500">Regulación de Gas - Nivel 1</span>
+                        </div>
+                        <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
+                    </button>
+
+                    <button onclick="alert('GAS RL2 - En desarrollo')" class="tariff-select-btn group">
+                        <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-lg font-bold text-drk-900">RL2</span>
+                            <span class="block text-xs text-slate-500">Regulación de Gas - Nivel 2</span>
+                        </div>
+                        <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
+                    </button>
+
+                    <button onclick="alert('GAS RL3 - En desarrollo')" class="tariff-select-btn group">
+                        <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-lg font-bold text-drk-900">RL3</span>
+                            <span class="block text-xs text-slate-500">Regulación de Gas - Nivel 3</span>
+                        </div>
+                        <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
+                    </button>
+
+                    <button onclick="alert('GAS RL4 - En desarrollo')" class="tariff-select-btn group">
+                        <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-lg font-bold text-drk-900">RL4</span>
+                            <span class="block text-xs text-slate-500">Regulación de Gas - Nivel 4</span>
+                        </div>
+                        <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
+                    </button>
+
+                    <button onclick="alert('GAS RL5 - En desarrollo')" class="tariff-select-btn group">
+                        <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-lg font-bold text-drk-900">RL5</span>
+                            <span class="block text-xs text-slate-500">Regulación de Gas - Nivel 5</span>
+                        </div>
+                        <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
+                    </button>
+
+                    <button onclick="alert('GAS RL6 - En desarrollo')" class="tariff-select-btn group">
+                        <div class="icon-wrapper bg-red-50 text-red-600 group-hover:bg-red-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-lg font-bold text-drk-900">RL6</span>
+                            <span class="block text-xs text-slate-500">Regulación de Gas - Nivel 6</span>
+                        </div>
+                        <span class="arrow-icon group-hover:text-red-500">&rarr;</span>
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -1469,11 +1620,11 @@
             if (type === 'electricity') {
                 // Activar ELECTRICIDAD
                 electricityBtn.classList.add('service-active', 'border-drk-500', 'bg-drk-50');
-                electricityBtn.classList.remove('border-slate-300', 'bg-white', 'hover:border-drk-400', 'hover:bg-drk-50');
+                electricityBtn.classList.remove('border-slate-300', 'bg-white');
                 
                 // Desactivar GAS
                 gasBtn.classList.remove('service-active', 'border-red-500', 'bg-red-50');
-                gasBtn.classList.add('border-slate-300', 'bg-white', 'hover:border-red-400', 'hover:bg-red-50');
+                gasBtn.classList.add('border-slate-300', 'bg-white');
                 
                 // Mostrar tarifas de ELECTRICIDAD
                 electricityTariffs.classList.remove('hidden');
@@ -1482,11 +1633,11 @@
             } else if (type === 'gas') {
                 // Activar GAS
                 gasBtn.classList.add('service-active', 'border-red-500', 'bg-red-50');
-                gasBtn.classList.remove('border-slate-300', 'bg-white', 'hover:border-red-400', 'hover:bg-red-50');
+                gasBtn.classList.remove('border-slate-300', 'bg-white');
                 
                 // Desactivar ELECTRICIDAD
                 electricityBtn.classList.remove('service-active', 'border-drk-500', 'bg-drk-50');
-                electricityBtn.classList.add('border-slate-300', 'bg-white', 'hover:border-drk-400', 'hover:bg-drk-50');
+                electricityBtn.classList.add('border-slate-300', 'bg-white');
                 
                 // Mostrar tarifas de GAS
                 gasTariffs.classList.remove('hidden');
@@ -10230,6 +10381,25 @@
                  }
                }
                return data;
+        }
+        
+        // === FUNCIONES DE NAVEGACIÓN (NUEVAS) ===
+        function showElectricity() {
+            document.getElementById('service-selection-view').classList.add('hidden');
+            document.getElementById('landing-view').classList.remove('hidden');
+            document.getElementById('gas-view').classList.add('hidden');
+        }
+        
+        function showGas() {
+            document.getElementById('service-selection-view').classList.add('hidden');
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('gas-view').classList.remove('hidden');
+        }
+        
+        function backToHome() {
+            document.getElementById('service-selection-view').classList.remove('hidden');
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('gas-view').classList.add('hidden');
         }
     </script>
 </body>
