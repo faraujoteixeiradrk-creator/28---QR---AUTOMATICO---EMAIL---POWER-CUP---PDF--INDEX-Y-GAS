@@ -205,7 +205,7 @@
     <!-- Main Content Area -->
     <div id="app" class="w-full max-w-lg mx-auto p-4 md:p-6 flex-grow">
 
-        <!-- 0. Service Selection View (NUEVA - Pantalla Inicial) -->
+        <!-- 0. Service Selection View (PANTALLA INICIAL - NUEVO) -->
         <div id="service-selection-view" class="fade-in flex flex-col items-center justify-center min-h-[60vh] py-8">
             <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl w-full border-t-4 border-drk-500">
                 <div class="w-16 h-16 bg-drk-50 rounded-full flex items-center justify-center mx-auto mb-4 text-drk-600 shadow-inner">
@@ -242,32 +242,32 @@
                     </div>
                 </div>
                 
-                <!-- Service Type Selector (2 BOTONES: ELECTRICIDAD y GAS) -->
+                <!-- Service Type Selector (2 BOTONES) -->
                 <div class="pt-4 border-t border-slate-200">
                     <p class="text-sm font-bold text-drk-800 mb-4 text-center uppercase tracking-wider">TIPO DE SUMINISTRO</p>
                     <div class="grid grid-cols-2 gap-4">
                         <!-- ELECTRICIDAD -->
-                        <button onclick="showElectricity()" class="service-type-btn border-4 border-slate-300 bg-white hover:border-drk-400 hover:bg-drk-50" style="padding: 2rem; border-radius: 1.5rem; text-align: center; cursor: pointer; transition: all 0.4s ease;">
-                            <div class="text-5xl mb-3">⚡</div>
-                            <div class="text-xl font-black text-drk-900">ELECTRICIDAD</div>
-                            <div class="text-xs text-slate-600 mt-2">MULTICUPS · 2.0 TD · 3.0 TD</div>
+                        <button onclick="showElectricity()" style="padding: 2rem; border-radius: 1.5rem; border: 4px solid #cbd5e1; background: white; text-align: center; cursor: pointer; transition: all 0.4s;">
+                            <div style="font-size: 3rem; margin-bottom: 0.75rem;">⚡</div>
+                            <div style="font-size: 1.25rem; font-weight: 900; color: #1e3a8a;">ELECTRICIDAD</div>
+                            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem;">MULTICUPS · 2.0 TD · 3.0 TD</div>
                         </button>
                         
                         <!-- GAS -->
-                        <button onclick="showGas()" class="service-type-btn border-4 border-slate-300 bg-white hover:border-red-400 hover:bg-red-50" style="padding: 2rem; border-radius: 1.5rem; text-align: center; cursor: pointer; transition: all 0.4s ease;">
-                            <div class="text-5xl mb-3">🔥</div>
-                            <div class="text-xl font-black text-red-600">GAS</div>
-                            <div class="text-xs text-slate-600 mt-2">RL1 · RL2 · RL3 · RL4 · RL5 · RL6</div>
+                        <button onclick="showGas()" style="padding: 2rem; border-radius: 1.5rem; border: 4px solid #cbd5e1; background: white; text-align: center; cursor: pointer; transition: all 0.4s;">
+                            <div style="font-size: 3rem; margin-bottom: 0.75rem;">🔥</div>
+                            <div style="font-size: 1.25rem; font-weight: 900; color: #dc2626;">GAS</div>
+                            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem;">RL1 · RL2 · RL3 · RL4 · RL5 · RL6</div>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 1. Landing View -->
+        <!-- 1. Landing View (ELECTRICIDAD - OCULTO por defecto) -->
         <div id="landing-view" class="fade-in hidden flex flex-col items-center justify-center min-h-[60vh] py-8">
             <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl w-full border-t-4 border-drk-500" id="landing-card">
-                <!-- Botón Volver -->
+                <!-- Botón Volver (NUEVO) -->
                 <button onclick="backToHome()" class="mb-4 text-sm text-slate-500 hover:text-drk-600 flex items-center gap-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                     Volver
@@ -450,7 +450,7 @@
             </div>
         </div>
         
-        <!-- 1b. Gas View (NUEVA) -->
+        <!-- 1b. Gas View (GAS - OCULTO por defecto) -->
         <div id="gas-view" class="fade-in hidden flex flex-col items-center justify-center min-h-[60vh] py-8">
             <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl w-full border-t-4 border-red-500">
                 <!-- Botón Volver -->
@@ -1516,8 +1516,10 @@
                 updateComparisonMode(comparisonMode); // Llamar directamente para asegurar el styling
             }
 
-            // document.getElementById('landing-view').classList.remove('hidden'); // COMENTADO: Ahora se muestra solo al hacer click
-            document.getElementById('service-selection-view').classList.remove('hidden'); // NUEVO: Mostrar pantalla inicial
+            // MOSTRAR PANTALLA INICIAL (service-selection-view) en lugar de landing-view
+            document.getElementById('service-selection-view').classList.remove('hidden');
+            document.getElementById('landing-view').classList.add('hidden'); // Asegurar que está oculto
+            document.getElementById('gas-view').classList.add('hidden'); // Asegurar que está oculto
             document.getElementById('initial-view').classList.add('hidden');
             document.getElementById('multicups-saga-view').classList.add('hidden'); // NEW: Cleanup saga view
             document.getElementById('results-view').classList.add('hidden');
@@ -10384,7 +10386,10 @@
                return data;
         }
         
-        // === FUNCIONES DE NAVEGACIÓN (NUEVAS) ===
+        // ========================================
+        // FUNCIONES DE NAVEGACIÓN (NUEVO)
+        // ========================================
+        
         function showElectricity() {
             // Ocultar todas las vistas
             document.getElementById('service-selection-view').classList.add('hidden');
