@@ -11632,9 +11632,8 @@
             const resFijo = results.find(r => r.name.includes('FIJO') || r.name.includes('META')) || results[0];
             const resIndexed = results.find(r => r.name.includes('INDEX')) || results[1];
             
-            // Determinar la mejor opción
-            const bestResult = resFijo.ahorro_anual > resIndexed.ahorro_anual ? resFijo : resIndexed;
-            const bestName = bestResult.name;
+            // Calcular valores anuales
+            const facturaActualAnio = totalCliente * 365 / dias;
             
             const htmlContent = `
             <div style="font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; background: white;">
@@ -11653,11 +11652,91 @@
                     </tr>
                 </table>
                 
-                <!-- BANNER ESTUDIO DE AHORRO -->
-                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: ${accentColor}; color: white;">
+                <!-- SECCIÓN 1: LA MEJOR OPCIÓN Y COMPARATIVA 3 COLUMNAS -->
+                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: ${primaryColor}; color: white; margin-top: 20px;">
+                    <tr>
+                        <td style="padding: 25px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 16px;">LA MEJOR OPCIÓN PARA TI ES</p>
+                            <h2 style="margin: 0; font-size: 36px; font-weight: bold;">${brandName}</h2>
+                            <p style="margin: 10px 0 0 0; font-size: 14px;">Ofrece el mayor ahorro consolidado con ${brandName}.</p>
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- COMPARATIVA 3 COLUMNAS: FACTURA ACTUAL vs FIJO vs INDEXADO -->
+                <table width="100%" cellpadding="20" cellspacing="0" style="margin-top: 30px;">
+                    <tr>
+                        <!-- COLUMNA 1: FACTURA ACTUAL -->
+                        <td style="width: 30%; vertical-align: top; text-align: center;">
+                            <p style="margin: 0 0 15px 0; font-size: 13px; color: #888; font-weight: bold;">TU FACTURA ACTUAL</p>
+                            <h2 style="margin: 0; font-size: 24px; font-weight: bold; color: #dc2626; text-decoration: line-through;">0,00 €</h2>
+                            <p style="margin: 8px 0; font-size: 11px; color: #888;">Total Periodo</p>
+                            <h2 style="margin: 0; font-size: 22px; font-weight: bold; color: #dc2626; text-decoration: line-through;">${eur(facturaActualAnio)}/año</h2>
+                        </td>
+                        
+                        <!-- COLUMNA 2: AHORRO FIJO -->
+                        <td style="width: 35%; vertical-align: top;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: ${accentColor}; border-radius: 8px;">
+                                <tr>
+                                    <td style="padding: 10px; text-align: center; color: white;">
+                                        <p style="margin: 0; font-size: 11px; font-weight: bold;">TU AHORRO ANUAL FIJO</p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <h2 style="margin: 0; font-size: 28px; font-weight: bold; color: #16a34a;">${eur(resFijo.ahorro_anual)}</h2>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <p style="margin: 0 0 5px 0; font-size: 11px; color: #666;">TU NUEVO COSTE ${brandName}</p>
+                                        <p style="margin: 0; font-size: 18px; font-weight: bold; color: ${primaryColor};">${eur(resFijo.total * 30 / dias)}/mes</p>
+                                        <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">Estimado Mensual</p>
+                                        <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: bold; color: ${primaryColor};">${eur(resFijo.total * 365 / dias)}/año</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        
+                        <!-- COLUMNA 3: AHORRO INDEXADO -->
+                        <td style="width: 35%; vertical-align: top;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #16a34a; border-radius: 8px;">
+                                <tr>
+                                    <td style="padding: 10px; text-align: center; color: white;">
+                                        <p style="margin: 0; font-size: 11px; font-weight: bold;">TU AHORRO ANUAL INDEXADO</p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <h2 style="margin: 0; font-size: 28px; font-weight: bold; color: #16a34a;">${eur(resIndexed.ahorro_anual)}</h2>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <p style="margin: 0 0 5px 0; font-size: 11px; color: #666;">TU NUEVO COSTE ${brandName}</p>
+                                        <p style="margin: 0; font-size: 18px; font-weight: bold; color: #16a34a;">${eur(resIndexed.total * 30 / dias)}/mes</p>
+                                        <p style="margin: 5px 0 0 0; font-size: 10px; color: #888;">Estimado Mensual</p>
+                                        <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: bold; color: #16a34a;">${eur(resIndexed.total * 365 / dias)}/año</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- SECCIÓN 2: DESGLOSE DETALLADO POR SUMINISTRO -->
+                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: ${primaryColor}; color: white; margin-top: 40px;">
                     <tr>
                         <td style="padding: 15px 40px; text-align: center;">
-                            <h2 style="margin: 0; font-size: 20px; font-weight: bold;">DESGLOSE DETALLADO POR SUMINISTRO - GAS</h2>
+                            <h2 style="margin: 0; font-size: 18px; font-weight: bold;">DESGLOSE DETALLADO POR SUMINISTRO</h2>
                         </td>
                     </tr>
                 </table>
@@ -11673,54 +11752,74 @@
                                 <tr>
                                     <td style="padding: 15px;">
                                         <p style="margin: 0 0 5px 0; font-size: 11px;">[ES0021000020679723GY]</p>
-                                        <p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">${brandName} - ${resFijo.name}</p>
-                                        <p style="margin: 0; font-size: 10px;">Tipo: 2.0TD | Días: ${dias}</p>
+                                        <p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">Tipo: 2.0TD | Días: ${dias}</p>
+                                        <p style="margin: 0; font-size: 12px; font-weight: bold;">${brandName} - ${brandName}</p>
                                     </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Precios Aplicados Fija -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #6c7a89; color: white; margin-bottom: 10px;">
+                                <tr>
+                                    <td style="padding: 10px; font-size: 12px; font-weight: bold;">PRECIOS APLICADOS:</td>
+                                </tr>
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 10px; border: 1px solid #e0e0e0;">
+                                <tr>
+                                    <td style="font-size: 11px; font-weight: bold; padding: 5px;">POTENCIA:</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 10px; padding: 2px 5px;">P1: ${num(resFijo.p_fijo_diario / 365)} €/kW/día</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 11px; font-weight: bold; padding: 5px; padding-top: 10px;">ENERGÍA:</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 10px; padding: 2px 5px;">E1: ${num(resFijo.p1_price)} €/kWh</td>
                                 </tr>
                             </table>
                             
                             <!-- Desglose Fija -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #6c7a89; color: white; margin-top: 10px;">
                                 <tr>
-                                    <td style="padding: 15px;" colspan="2">
-                                        <p style="margin: 0; font-size: 13px; font-weight: bold; color: ${primaryColor};">TÉRMINO FIJO</p>
-                                    </td>
+                                    <td style="padding: 10px; font-size: 12px; font-weight: bold;">POTENCIA</td>
                                 </tr>
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border: 1px solid #e0e0e0; border-top: none;">
                                 <tr>
-                                    <td style="padding: 5px 15px; font-size: 11px;">Precio fijo (${dias} días)</td>
-                                    <td style="padding: 5px 15px; font-size: 11px; text-align: right; font-weight: bold;">${eur(resFijo.total_fijo)}</td>
+                                    <td style="padding: 8px; font-size: 11px;">Precio fijo (${dias} días)</td>
+                                    <td style="padding: 8px; font-size: 11px; text-align: right; font-weight: bold;">${eur(resFijo.total_fijo)}</td>
                                 </tr>
-                                
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #6c7a89; color: white; margin-top: 10px;">
                                 <tr>
-                                    <td style="padding: 15px 15px 5px 15px;" colspan="2">
-                                        <p style="margin: 0; font-size: 13px; font-weight: bold; color: ${primaryColor};">TÉRMINO ENERGÍA</p>
-                                    </td>
+                                    <td style="padding: 10px; font-size: 12px; font-weight: bold;">ENERGÍA</td>
                                 </tr>
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border: 1px solid #e0e0e0; border-top: none;">
                                 <tr>
-                                    <td style="padding: 5px 15px; font-size: 11px;">Energía (${kwh} kWh)</td>
-                                    <td style="padding: 5px 15px; font-size: 11px; text-align: right; font-weight: bold;">${eur(resFijo.total_energia)}</td>
+                                    <td style="padding: 8px; font-size: 11px;">Energía (${kwh} kWh)</td>
+                                    <td style="padding: 8px; font-size: 11px; text-align: right; font-weight: bold;">${eur(resFijo.total_energia)}</td>
                                 </tr>
-                                
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: ${primaryColor}; color: white; margin-top: 10px;">
                                 <tr>
-                                    <td style="padding: 5px 15px; font-size: 11px; padding-top: 10px;">Imp. Hidrocarburos</td>
-                                    <td style="padding: 5px 15px; font-size: 11px; text-align: right; padding-top: 10px;">${eur(resFijo.impuesto_hidrocarburo)}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px 15px; font-size: 11px;">IVA (21%)</td>
-                                    <td style="padding: 5px 15px; font-size: 11px; text-align: right;">${eur(resFijo.iva)}</td>
-                                </tr>
-                                <tr style="background-color: ${primaryColor}; color: white;">
-                                    <td style="padding: 10px 15px; font-size: 13px; font-weight: bold;">TOTAL</td>
-                                    <td style="padding: 10px 15px; font-size: 13px; text-align: right; font-weight: bold;">${eur(resFijo.total)}</td>
+                                    <td style="padding: 12px; font-size: 13px; font-weight: bold;">TOTAL (${dias} DÍAS)</td>
+                                    <td style="padding: 12px; font-size: 13px; text-align: right; font-weight: bold;">${eur(resFijo.total)}</td>
                                 </tr>
                             </table>
                             
                             <!-- Ahorro Anual Fija -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #16a34a; border-radius: 8px; margin-top: 15px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #dc2626; border-radius: 8px; margin-top: 15px;">
                                 <tr>
                                     <td style="padding: 15px; text-align: center; color: white;">
-                                        <p style="margin: 0 0 5px 0; font-size: 10px;">TU AHORRO ANUAL ESTIMADO</p>
-                                        <p style="margin: 0; font-size: 18px; font-weight: bold;">${eur(resFijo.ahorro_anual)}</p>
+                                        <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: bold;">AHORRO:</p>
+                                        <p style="margin: 0; font-size: 20px; font-weight: bold;">${eur(resFijo.ahorro_anual)}</p>
                                     </td>
                                 </tr>
                             </table>
@@ -11735,54 +11834,74 @@
                                 <tr>
                                     <td style="padding: 15px;">
                                         <p style="margin: 0 0 5px 0; font-size: 11px;">[ES0021000020679723GY]</p>
-                                        <p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">${brandName} INDEX - ${resIndexed.name}</p>
-                                        <p style="margin: 0; font-size: 10px;">Tipo: 2.0TD | Días: ${dias}</p>
+                                        <p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">Tipo: 2.0TD | Días: ${dias}</p>
+                                        <p style="margin: 0; font-size: 12px; font-weight: bold;">${brandName} INDEX - ${brandName} INDEX</p>
                                     </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Precios Aplicados Indexada -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #6c7a89; color: white; margin-bottom: 10px;">
+                                <tr>
+                                    <td style="padding: 10px; font-size: 12px; font-weight: bold;">PRECIOS APLICADOS:</td>
+                                </tr>
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 10px; border: 1px solid #e0e0e0;">
+                                <tr>
+                                    <td style="font-size: 11px; font-weight: bold; padding: 5px;">POTENCIA:</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 10px; padding: 2px 5px;">P1: ${num(resIndexed.p_fijo_diario / 365)} €/kW/día</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 11px; font-weight: bold; padding: 5px; padding-top: 10px;">ENERGÍA:</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 10px; padding: 2px 5px;">E1: ${num(resIndexed.p1_price)} €/kWh</td>
                                 </tr>
                             </table>
                             
                             <!-- Desglose Indexada -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #6c7a89; color: white; margin-top: 10px;">
                                 <tr>
-                                    <td style="padding: 15px;" colspan="2">
-                                        <p style="margin: 0; font-size: 13px; font-weight: bold; color: ${primaryColor};">TÉRMINO FIJO</p>
-                                    </td>
+                                    <td style="padding: 10px; font-size: 12px; font-weight: bold;">POTENCIA</td>
                                 </tr>
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border: 1px solid #e0e0e0; border-top: none;">
                                 <tr>
-                                    <td style="padding: 5px 15px; font-size: 11px;">Precio fijo (${dias} días)</td>
-                                    <td style="padding: 5px 15px; font-size: 11px; text-align: right; font-weight: bold;">${eur(resIndexed.total_fijo)}</td>
+                                    <td style="padding: 8px; font-size: 11px;">Precio fijo (${dias} días)</td>
+                                    <td style="padding: 8px; font-size: 11px; text-align: right; font-weight: bold;">${eur(resIndexed.total_fijo)}</td>
                                 </tr>
-                                
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #6c7a89; color: white; margin-top: 10px;">
                                 <tr>
-                                    <td style="padding: 15px 15px 5px 15px;" colspan="2">
-                                        <p style="margin: 0; font-size: 13px; font-weight: bold; color: ${primaryColor};">TÉRMINO ENERGÍA</p>
-                                    </td>
+                                    <td style="padding: 10px; font-size: 12px; font-weight: bold;">ENERGÍA</td>
                                 </tr>
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border: 1px solid #e0e0e0; border-top: none;">
                                 <tr>
-                                    <td style="padding: 5px 15px; font-size: 11px;">Energía (${kwh} kWh)</td>
-                                    <td style="padding: 5px 15px; font-size: 11px; text-align: right; font-weight: bold;">${eur(resIndexed.total_energia)}</td>
+                                    <td style="padding: 8px; font-size: 11px;">Energía (${kwh} kWh)</td>
+                                    <td style="padding: 8px; font-size: 11px; text-align: right; font-weight: bold;">${eur(resIndexed.total_energia)}</td>
                                 </tr>
-                                
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: ${primaryColor}; color: white; margin-top: 10px;">
                                 <tr>
-                                    <td style="padding: 5px 15px; font-size: 11px; padding-top: 10px;">Imp. Hidrocarburos</td>
-                                    <td style="padding: 5px 15px; font-size: 11px; text-align: right; padding-top: 10px;">${eur(resIndexed.impuesto_hidrocarburo)}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px 15px; font-size: 11px;">IVA (21%)</td>
-                                    <td style="padding: 5px 15px; font-size: 11px; text-align: right;">${eur(resIndexed.iva)}</td>
-                                </tr>
-                                <tr style="background-color: ${primaryColor}; color: white;">
-                                    <td style="padding: 10px 15px; font-size: 13px; font-weight: bold;">TOTAL</td>
-                                    <td style="padding: 10px 15px; font-size: 13px; text-align: right; font-weight: bold;">${eur(resIndexed.total)}</td>
+                                    <td style="padding: 12px; font-size: 13px; font-weight: bold;">TOTAL (${dias} DÍAS)</td>
+                                    <td style="padding: 12px; font-size: 13px; text-align: right; font-weight: bold;">${eur(resIndexed.total)}</td>
                                 </tr>
                             </table>
                             
                             <!-- Ahorro Anual Indexada -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #16a34a; border-radius: 8px; margin-top: 15px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #dc2626; border-radius: 8px; margin-top: 15px;">
                                 <tr>
                                     <td style="padding: 15px; text-align: center; color: white;">
-                                        <p style="margin: 0 0 5px 0; font-size: 10px;">TU AHORRO ANUAL ESTIMADO</p>
-                                        <p style="margin: 0; font-size: 18px; font-weight: bold;">${eur(resIndexed.ahorro_anual)}</p>
+                                        <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: bold;">AHORRO:</p>
+                                        <p style="margin: 0; font-size: 20px; font-weight: bold;">${eur(resIndexed.ahorro_anual)}</p>
                                     </td>
                                 </tr>
                             </table>
@@ -11791,11 +11910,71 @@
                     </tr>
                 </table>
                 
-                <!-- FOOTER -->
-                <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 30px; padding: 20px 40px; background-color: #f5f5f5;">
+                <!-- SECCIÓN 3: CUAL ES LA DIFERENCIA -->
+                <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 40px;">
                     <tr>
-                        <td style="text-align: center; font-size: 12px; color: #888;">
-                            <p style="margin: 0;">⚡ ${brandName} - Liderando el ahorro y la eficiencia energética ⚡</p>
+                        <td style="padding: 20px 40px; text-align: center;">
+                            <h2 style="margin: 0; font-size: 24px; font-weight: bold;">CUAL ES LA DIFERENCIA?</h2>
+                        </td>
+                    </tr>
+                </table>
+                
+                <table width="100%" cellpadding="20" cellspacing="0">
+                    <tr>
+                        <!-- COLUMNA IZQUIERDA: POR QUE TARIFA FIJA -->
+                        <td style="width: 48%; vertical-align: top;">
+                            <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: bold; color: ${accentColor};">POR QUE TARIFA FIJA?</h3>
+                            <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333;">
+                                <li>Implica un precio fijo por los kilovatios que consumes (kWh).</li>
+                                <li>El precio se mantiene estable, independientemente de cómo se comporten los precios en el mercado eléctrico.</li>
+                                <li>Cuando el precio del mercado está alto, el cliente está protegido frente a sobresaltos.</li>
+                                <li>No tendrás que estar pendiente de las variaciones del mercado y podrás seguir usando la electricidad como siempre.</li>
+                            </ul>
+                        </td>
+                        
+                        <!-- COLUMNA DERECHA: POR QUE TARIFA INDEXADA -->
+                        <td style="width: 48%; vertical-align: top;">
+                            <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: bold; color: #16a34a;">POR QUE TARIFA INDEXADA?</h3>
+                            <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333;">
+                                <li>Implica un precio variable por los kilovatios que consumes (kWh) cada mes.</li>
+                                <li>Es la tarifa más justa, ya que pagas el coste real de la energía mes a mes.</li>
+                                <li>Al contratarla, el cliente evita pagar márgenes adicionales cuando el precio de la electricidad es más barato.</li>
+                                <li>A largo plazo, con un indexado 100% funcional, se puede obtener un ahorro aproximado de hasta un 20% en épocas de mejor precio.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- SECCIÓN 4: PARA FORMALIZAR ESTA OFERTA -->
+                <table width="100%" cellpadding="0" cellspacing="0" style="border: 3px solid ${accentColor}; border-radius: 12px; margin: 30px 40px 40px 40px; width: calc(100% - 80px);">
+                    <tr>
+                        <td style="padding: 30px; text-align: center;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; font-weight: bold; color: ${primaryColor};">📊 Para formalizar esta oferta:</p>
+                            <ol style="text-align: left; display: inline-block; font-size: 14px; line-height: 2; color: #333; margin: 0 0 20px 0;">
+                                <li>Haz clic en el botón de abajo</li>
+                                <li>Se abrirá tu cliente de email</li>
+                                <li><strong style="color: ${primaryColor};">Adjunta documentación del CUPS</strong></li>
+                                <li>Envía el email</li>
+                            </ol>
+                            
+                            <table cellpadding="0" cellspacing="0" style="margin: 20px auto;">
+                                <tr>
+                                    <td style="background-color: #dc2626; border-radius: 8px; text-align: center;">
+                                        <a href="mailto:contratacion@example.com?subject=Confirmación Oferta GAS Comparativa&body=Adjunto documentación requerida." style="display: inline-block; padding: 15px 40px; color: white; text-decoration: none; font-weight: bold; font-size: 16px;">
+                                            ✓ CONFIRMAR OFERTA CONSOLIDADA
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; border-radius: 8px; margin-top: 20px;">
+                                <tr>
+                                    <td style="padding: 15px; text-align: center;">
+                                        <p style="margin: 0; font-size: 11px; color: #888;">📎 Por cada CUPS adjuntar:</p>
+                                        <p style="margin: 5px 0 0 0; font-size: 12px; color: #333;">DNI/CIF · Última factura · Email · Teléfono · IBAN</p>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>
