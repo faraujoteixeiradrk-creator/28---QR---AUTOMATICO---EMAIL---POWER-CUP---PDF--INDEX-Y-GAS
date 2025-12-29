@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!-- 
+    ✅ VERSIÓN CON HTML PARA GAS IMPLEMENTADO
+    Última actualización: 2025-12-29
+    Funcionalidad HTML Email para GAS: ACTIVA
+-->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -9573,6 +9578,17 @@
             
             setupPasteCatcher(); // <-- Llamada ahora segura
 
+            // VERIFICACIÓN: Confirmar que funciones HTML para GAS están cargadas
+            console.log('✅ Verificando funciones HTML para GAS...');
+            console.log('generateGasHTML:', typeof generateGasHTML);
+            console.log('generateGasHTMLSingle:', typeof generateGasHTMLSingle);
+            console.log('generateGasHTMLComparison:', typeof generateGasHTMLComparison);
+            if (typeof generateGasHTML === 'function') {
+                console.log('✅ Funciones HTML para GAS cargadas correctamente');
+            } else {
+                console.error('❌ ERROR: Funciones HTML para GAS NO cargadas');
+            }
+
             document.getElementById('send-offer-btn').onclick = () => {
                 if (lastComparisonResult) {
                     document.getElementById('send-offer-modal').classList.remove('hidden');
@@ -11201,6 +11217,7 @@
             });
             
             // GUARDAR DATOS PARA EXPORTAR (NUEVO)
+            const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked')?.value || 'drk_only';
             window.gasExportData = { results, dias, kwh, totalCliente, comparisonMode };
             
             // AGREGAR BOTONES DE EXPORTAR (NUEVO)
@@ -11331,8 +11348,327 @@
         }
         
         async function generateGasHTML() {
-            window.showMessageModal("⏳ Función HTML próximamente...", false);
+            console.log('🔵 generateGasHTML ejecutándose - VERSIÓN NUEVA');
+            console.log('gasExportData:', window.gasExportData);
+            
+            if (!window.gasExportData) {
+                console.error('❌ No hay gasExportData');
+                window.showMessageModal("⚠️ No hay datos para exportar", false);
+                return;
+            }
+            
+            const { results, dias, kwh, totalCliente, comparisonMode } = window.gasExportData;
+            console.log('Datos extraídos:', { results, dias, kwh, totalCliente, comparisonMode });
+            
+            // Detectar si es modo comparativo (Fija vs Indexada)
+            const isComparisonMode = document.getElementById('gas-compare-indexed-fixed') && 
+                                     document.getElementById('gas-compare-indexed-fixed').checked;
+            console.log('¿Modo comparativo?', isComparisonMode);
+            
+            if (isComparisonMode && results.length === 2) {
+                console.log('→ Generando HTML comparativo');
+                // Modo comparativo: mostrar ambas tarifas lado a lado
+                generateGasHTMLComparison(results, dias, kwh, totalCliente);
+            } else {
+                console.log('→ Generando HTML individual');
+                // Modo individual: mostrar solo la mejor tarifa
+                generateGasHTMLSingle(results[0], dias, kwh, totalCliente);
+            }
         }
+        
+        // Función para generar HTML individual (una sola tarifa)
+        function generateGasHTMLSingle(result, dias, kwh, totalCliente) {
+            const eur = n => new Intl.NumberFormat('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(n || 0) + ' €';
+            const num = (n, d=2) => new Intl.NumberFormat('es-ES', {minimumFractionDigits: d, maximumFractionDigits: d}).format(n || 0);
+            
+            // Determinar marca (DRK o POWER CUP)
+            const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked').value;
+            const isDrk = (comparisonMode === 'drk_only' || comparisonMode === 'drk_prioritized');
+            const isPowerCup = (comparisonMode === 'powercup_only' || comparisonMode === 'powercup_prioritized');
+            
+            // Colores según marca
+            const brandColor = isDrk ? '#0c4a6e' : '#4d7c0f';
+            const accentColor = isDrk ? '#0ea5e9' : '#84cc16';
+            const bgColor = isDrk ? '#f0f9ff' : '#f7fee7';
+            const brandName = isDrk ? 'DRK' : 'POWER CUP';
+            
+            const tariffName = result.name.split('-')[0].trim();
+            const ahorroAnual = result.ahorro_anual;
+            const ahorroMensual = result.ahorro_mensual;
+            const isPositiveSaving = ahorroAnual > 0;
+            
+            const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: white; border: 3px solid ${brandColor}; border-radius: 12px; overflow: hidden;">
+                <!-- Header -->
+                <div style="background: ${brandColor}; color: white; padding: 30px 20px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 32px; font-weight: bold;">${brandName}</h1>
+                    <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9;">ENERGÍA</p>
+                </div>
+                
+                <!-- Banner -->
+                <div style="background: ${accentColor}; color: white; padding: 15px; text-align: center;">
+                    <p style="margin: 0; font-size: 18px; font-weight: bold;">🔥 ESTUDIO DE AHORRO - GAS 🔥</p>
+                </div>
+                
+                <!-- Info Cliente -->
+                <div style="background: ${bgColor}; padding: 20px; border-bottom: 2px solid ${brandColor};">
+                    <h2 style="margin: 0 0 10px 0; color: ${brandColor}; font-size: 20px;">Comparativa Profesional</h2>
+                    <p style="margin: 5px 0; font-size: 14px; color: #64748b;">
+                        <strong>CLIENTE:</strong> [NOMBRE COMPLETO CLIENTE]<br>
+                        <strong>CUPS:</strong> ES0021000020679723GY<br>
+                        <strong>COMERCIAL:</strong> &lt;cz&gt;
+                    </p>
+                </div>
+                
+                <!-- La Mejor Opción -->
+                <div style="background: ${brandColor}; color: white; padding: 30px 20px; text-align: center;">
+                    <p style="margin: 0 0 10px 0; font-size: 16px;">LA MEJOR OPCIÓN PARA TI ES</p>
+                    <h2 style="margin: 0; font-size: 42px; font-weight: bold;">${tariffName}</h2>
+                    <p style="margin: 10px 0 0 0; font-size: 18px;">${brandName}</p>
+                </div>
+                
+                <!-- Ahorro -->
+                <div style="padding: 30px 20px; background: #f8fafc;">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <p style="margin: 0 0 10px 0; font-size: 16px; color: #64748b; font-weight: bold;">TU AHORRO ANUAL ESTIMADO</p>
+                        <p style="margin: 0; font-size: 48px; font-weight: bold; color: #16a34a;">${eur(ahorroAnual)}</p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 15px; border: 2px solid #e2e8f0; text-align: center; background: white;">
+                                <p style="margin: 0 0 8px 0; font-size: 14px; color: #64748b; font-weight: bold;">TU FACTURA ACTUAL</p>
+                                <p style="margin: 0; font-size: 28px; font-weight: bold; color: #dc2626; text-decoration: line-through;">${eur(totalCliente * 30 / dias)}/mes</p>
+                                <p style="margin: 8px 0 0 0; font-size: 12px; color: #94a3b8;">Periodo ${dias} días</p>
+                                <p style="margin: 8px 0 0 0; font-size: 20px; font-weight: bold; color: #dc2626; text-decoration: line-through;">${eur(totalCliente * 365 / dias)}/año</p>
+                            </td>
+                            <td style="padding: 15px; border: 2px solid #e2e8f0; text-align: center; background: white;">
+                                <p style="margin: 0 0 8px 0; font-size: 14px; color: #64748b; font-weight: bold;">TU NUEVO COSTE ${brandName}</p>
+                                <p style="margin: 0; font-size: 28px; font-weight: bold; color: ${brandColor};">${eur(result.total * 30 / dias)}/mes</p>
+                                <p style="margin: 8px 0 0 0; font-size: 12px; color: #94a3b8;">Estimado Mensual</p>
+                                <p style="margin: 8px 0 0 0; font-size: 20px; font-weight: bold; color: ${brandColor};">${eur(result.total * 365 / dias)}/año</p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Footer -->
+                <div style="background: ${bgColor}; padding: 20px; text-align: center; border-top: 2px solid ${brandColor};">
+                    <p style="margin: 0; font-size: 14px; color: ${brandColor}; font-weight: bold;">
+                        ⚡ ${brandName} - Liderando el ahorro y la eficiencia energética ⚡
+                    </p>
+                </div>
+            </div>
+            `;
+            
+            showHTMLPreview(htmlContent);
+        }
+        
+        // Función para generar HTML comparativo (Fija vs Indexada)
+        function generateGasHTMLComparison(results, dias, kwh, totalCliente) {
+            const eur = n => new Intl.NumberFormat('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(n || 0) + ' €';
+            const num = (n, d=2) => new Intl.NumberFormat('es-ES', {minimumFractionDigits: d, maximumFractionDigits: d}).format(n || 0);
+            
+            // Determinar marca (DRK o POWER CUP)
+            const comparisonMode = document.querySelector('input[name="comparison_mode"]:checked').value;
+            const isDrk = (comparisonMode === 'drk_only' || comparisonMode === 'drk_prioritized');
+            
+            // Colores según marca
+            const brandColor = isDrk ? '#0c4a6e' : '#4d7c0f';
+            const accentColor = isDrk ? '#0ea5e9' : '#84cc16';
+            const bgColor = isDrk ? '#f0f9ff' : '#f7fee7';
+            const brandName = isDrk ? 'DRK' : 'POWER CUP';
+            
+            // Identificar cuál es fija y cuál indexada
+            const resFijo = results.find(r => r.name.includes('FIJO') || r.name.includes('META')) || results[0];
+            const resIndexed = results.find(r => r.name.includes('INDEX')) || results[1];
+            
+            const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; background: white; border: 3px solid ${brandColor}; border-radius: 12px; overflow: hidden;">
+                <!-- Header -->
+                <div style="background: ${brandColor}; color: white; padding: 30px 20px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 32px; font-weight: bold;">${brandName}</h1>
+                    <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9;">ENERGÍA</p>
+                </div>
+                
+                <!-- Banner -->
+                <div style="background: ${accentColor}; color: white; padding: 15px; text-align: center;">
+                    <p style="margin: 0; font-size: 18px; font-weight: bold;">🔥 DESGLOSE DETALLADO POR SUMINISTRO - GAS 🔥</p>
+                </div>
+                
+                <!-- Comparativa Lado a Lado -->
+                <div style="padding: 20px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <!-- COLUMNA IZQUIERDA: FIJA -->
+                            <td style="width: 48%; vertical-align: top; padding-right: 2%;">
+                                <!-- Header Fija -->
+                                <div style="background: ${brandColor}; color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 12px;">[ES0021000020679723GY]</p>
+                                    <p style="margin: 5px 0; font-size: 14px; font-weight: bold;">${brandName} - ${resFijo.name}</p>
+                                    <p style="margin: 0; font-size: 11px;">Tipo: 2.0TD | Días: ${dias}</p>
+                                </div>
+                                
+                                <!-- Desglose Fija -->
+                                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                                    <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: ${brandColor};">TÉRMINO FIJO</p>
+                                    <table style="width: 100%; font-size: 12px; margin-bottom: 15px;">
+                                        <tr><td>Precio fijo (${dias} días)</td><td style="text-align: right; font-weight: bold;">${eur(resFijo.total_fijo)}</td></tr>
+                                    </table>
+                                    
+                                    <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: ${brandColor};">TÉRMINO ENERGÍA</p>
+                                    <table style="width: 100%; font-size: 12px; margin-bottom: 15px;">
+                                        <tr><td>Energía (${kwh} kWh)</td><td style="text-align: right; font-weight: bold;">${eur(resFijo.total_energia)}</td></tr>
+                                    </table>
+                                    
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr><td>Imp. Hidrocarburos</td><td style="text-align: right;">${eur(resFijo.impuesto_hidrocarburo)}</td></tr>
+                                        <tr><td>IVA (21%)</td><td style="text-align: right;">${eur(resFijo.iva)}</td></tr>
+                                        <tr style="border-top: 2px solid ${brandColor};">
+                                            <td style="padding-top: 8px; font-weight: bold; font-size: 14px;">TOTAL</td>
+                                            <td style="padding-top: 8px; text-align: right; font-weight: bold; font-size: 14px;">${eur(resFijo.total)}</td>
+                                        </tr>
+                                    </table>
+                                    
+                                    <div style="background: #16a34a; color: white; padding: 12px; border-radius: 6px; margin-top: 15px; text-align: center;">
+                                        <p style="margin: 0; font-size: 11px;">TU AHORRO ANUAL ESTIMADO</p>
+                                        <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: bold;">${eur(resFijo.ahorro_anual)}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <!-- COLUMNA DERECHA: INDEXADA -->
+                            <td style="width: 48%; vertical-align: top; padding-left: 2%;">
+                                <!-- Header Indexada -->
+                                <div style="background: ${brandColor}; color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 12px;">[ES0021000020679723GY]</p>
+                                    <p style="margin: 5px 0; font-size: 14px; font-weight: bold;">${brandName} INDEX - ${resIndexed.name}</p>
+                                    <p style="margin: 0; font-size: 11px;">Tipo: 2.0TD | Días: ${dias}</p>
+                                </div>
+                                
+                                <!-- Desglose Indexada -->
+                                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                                    <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: ${brandColor};">TÉRMINO FIJO</p>
+                                    <table style="width: 100%; font-size: 12px; margin-bottom: 15px;">
+                                        <tr><td>Precio fijo (${dias} días)</td><td style="text-align: right; font-weight: bold;">${eur(resIndexed.total_fijo)}</td></tr>
+                                    </table>
+                                    
+                                    <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: ${brandColor};">TÉRMINO ENERGÍA</p>
+                                    <table style="width: 100%; font-size: 12px; margin-bottom: 15px;">
+                                        <tr><td>Energía (${kwh} kWh)</td><td style="text-align: right; font-weight: bold;">${eur(resIndexed.total_energia)}</td></tr>
+                                    </table>
+                                    
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr><td>Imp. Hidrocarburos</td><td style="text-align: right;">${eur(resIndexed.impuesto_hidrocarburo)}</td></tr>
+                                        <tr><td>IVA (21%)</td><td style="text-align: right;">${eur(resIndexed.iva)}</td></tr>
+                                        <tr style="border-top: 2px solid ${brandColor};">
+                                            <td style="padding-top: 8px; font-weight: bold; font-size: 14px;">TOTAL</td>
+                                            <td style="padding-top: 8px; text-align: right; font-weight: bold; font-size: 14px;">${eur(resIndexed.total)}</td>
+                                        </tr>
+                                    </table>
+                                    
+                                    <div style="background: #16a34a; color: white; padding: 12px; border-radius: 6px; margin-top: 15px; text-align: center;">
+                                        <p style="margin: 0; font-size: 11px;">TU AHORRO ANUAL ESTIMADO</p>
+                                        <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: bold;">${eur(resIndexed.ahorro_anual)}</p>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Footer -->
+                <div style="background: ${bgColor}; padding: 20px; text-align: center; border-top: 2px solid ${brandColor};">
+                    <p style="margin: 0; font-size: 14px; color: ${brandColor}; font-weight: bold;">
+                        ⚡ ${brandName} - Liderando el ahorro y la eficiencia energética ⚡
+                    </p>
+                </div>
+            </div>
+            `;
+            
+            showHTMLPreview(htmlContent);
+        }
+        
+        // Función para mostrar el preview HTML y permitir copiar
+        function showHTMLPreview(htmlContent) {
+            // Crear modal si no existe
+            let modal = document.getElementById('html-preview-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'html-preview-modal';
+                modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: none; overflow: auto; padding: 20px;';
+                document.body.appendChild(modal);
+            }
+            
+            modal.innerHTML = `
+                <div style="max-width: 900px; margin: 0 auto; position: relative;">
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h2 style="margin: 0; color: #0c4a6e;">📧 HTML para Email - GAS</h2>
+                            <button onclick="closeHTMLPreview()" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Cerrar</button>
+                        </div>
+                        <p style="margin: 0 0 15px 0; color: #64748b; font-size: 14px;">
+                            <strong>Instrucciones:</strong> Haz clic en "Copiar HTML" y luego pega (Ctrl+V) directamente en tu correo electrónico.
+                            La imagen aparecerá automáticamente formateada.
+                        </p>
+                        <button onclick="copyHTMLToClipboard()" style="background: #0ea5e9; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%;">
+                            📋 Copiar HTML
+                        </button>
+                    </div>
+                    
+                    <!-- Preview del HTML -->
+                    <div id="html-preview-content" style="background: white; padding: 20px; border-radius: 12px;">
+                        ${htmlContent}
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+            
+            // Guardar el HTML content para copiar
+            window.currentHTMLContent = htmlContent;
+        }
+        
+        // Función para cerrar el preview
+        function closeHTMLPreview() {
+            const modal = document.getElementById('html-preview-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        window.closeHTMLPreview = closeHTMLPreview;
+        
+        // Función para copiar HTML al portapapeles
+        async function copyHTMLToClipboard() {
+            try {
+                const htmlContent = window.currentHTMLContent;
+                
+                // Crear blob HTML
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const clipboardItem = new ClipboardItem({
+                    'text/html': blob
+                });
+                
+                await navigator.clipboard.write([clipboardItem]);
+                
+                // Mostrar mensaje de éxito
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ ¡Copiado! Pega en tu email';
+                btn.style.background = '#16a34a';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#0ea5e9';
+                }, 3000);
+                
+            } catch (err) {
+                console.error('Error al copiar:', err);
+                alert('Error al copiar. Por favor, intenta seleccionar manualmente el contenido y copiar.');
+            }
+        }
+        window.copyHTMLToClipboard = copyHTMLToClipboard;
+
         
         // PDF INDIVIDUAL
         async function generateGasPDF_Simple(bestResult, dias, kwh, totalCliente) {
