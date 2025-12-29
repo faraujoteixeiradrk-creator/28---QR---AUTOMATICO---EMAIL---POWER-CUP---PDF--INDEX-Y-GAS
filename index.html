@@ -12377,10 +12377,10 @@
             y += 5;
             doc.text('CUPS: ES0021000020679723GY', 25, y);
             
-            // Texto "COMERCIAL: <scsz" en la esquina derecha
+            // Texto "COMERCIAL: <cz" en la esquina derecha
             doc.setTextColor(130, 140, 130);
             doc.setFontSize(8);
-            doc.text('COMERCIAL: <scsz', 185, y, { align: 'right' });
+            doc.text('COMERCIAL: <cz', 185, y, { align: 'right' });
             
             y += 15;
             
@@ -12672,23 +12672,11 @@
             doc.text('COMPARATIVA', pageWidth - 12, 27, { align: 'right' });
             
             doc.setTextColor(255, 255, 255);
-            
-            // Texto derecha del header
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(11);
-            doc.text('ESTUDIO DE AHORRO', pageWidth - 12, 16, { align: 'right' });
-            
-            doc.setTextColor(215, 230, 215);
-            doc.setFontSize(13);
-            doc.text('COMPARATIVA', pageWidth - 12, 27, { align: 'right' });
-            
-            doc.setTextColor(255, 255, 255);
             doc.setFontSize(11);
             doc.text('PROFESIONAL', pageWidth - 12, 37, { align: 'right' });
             
-            
             // Banner verde "ESTUDIO DE AHORRO"
-            y = 48;
+            y = 63;
             doc.setFillColor(76, 175, 80);
             doc.roundedRect(20, y, 170, 12, 4, 4, 'F');
             doc.setTextColor(255, 255, 255);
@@ -12720,10 +12708,10 @@
             y += 5;
             doc.text('CUPS: ES0021000020679723GY', 25, y);
             
-            // Texto "COMERCIAL: <scsz" en la esquina derecha
+            // Texto "COMERCIAL: <cz" en la esquina derecha
             doc.setTextColor(130, 140, 130);
             doc.setFontSize(8);
-            doc.text('COMERCIAL: <scsz', 185, y, { align: 'right' });
+            doc.text('COMERCIAL: <cz', 185, y, { align: 'right' });
             
             y += 15;
             
@@ -12738,11 +12726,14 @@
             
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(32);
-            doc.text('POWER CUP', pageWidth / 2, y + 30, { align: 'center' });
+            // Extraer el nombre de la tarifa (ej: "ELEIA" de "ELEIA - Tarifa XYZ")
+            const bestTariff = resFijo.ahorro_anual > resIndexed.ahorro_anual ? resFijo : resIndexed;
+            const tariffName = bestTariff.name.split('-')[0].trim();
+            doc.text(tariffName, pageWidth / 2, y + 30, { align: 'center' });
             
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
-            doc.text('Ofrece el mayor ahorro consolidado con POWER CUP.', pageWidth / 2, y + 42, { align: 'center' });
+            doc.text('POWER CUP', pageWidth / 2, y + 42, { align: 'center' });
             
             y += 63;
             
