@@ -10446,8 +10446,9 @@
             if (selectionMode === 'best') {
                 // Modo "Mejores tarifas"
                 if (compareChecked) {
-                    // Comparar indexada vs fija: solo mostrar botón continuar
+                    // Comparar indexada vs fija: mostrar botón calcular
                     typeButtons.style.display = 'none';
+                    calculateBtn.style.display = 'block'; // MOSTRAR el botón
                     calculateBtn.textContent = 'Calcular';
                     bestDescription.textContent = 'Comparará automáticamente la mejor tarifa indexada DRK vs la mejor tarifa fija DRK.';
                 } else {
