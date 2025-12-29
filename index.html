@@ -11723,10 +11723,7 @@
             const doc = new jsPDF('p', 'mm', 'a4');
             const eur = n => new Intl.NumberFormat('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(n || 0) + ' €';
             
-            // PÁGINA 1: VACÍA (la primera página se crea automáticamente vacía)
-            
-            // PÁGINA 2: COMPLETA (3 columnas)
-            doc.addPage();
+            // PÁGINA 1: COMPLETA (3 columnas) - Se crea automáticamente con new jsPDF()
             let y = 15;
             
             // Header gris
@@ -11876,7 +11873,7 @@
             doc.setTextColor(76, 175, 80);
             doc.text(eur(indexAnio) + '/año', 174, y, { align: 'center' });
             
-            // PÁGINAS 3 y 4: VACÍAS
+            // PÁGINAS 2-3: VACÍAS
             doc.addPage();
             doc.addPage();
             
