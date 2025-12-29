@@ -11722,6 +11722,7 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             const eur = n => new Intl.NumberFormat('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(n || 0) + ' €';
+            const num = (n, d=2) => new Intl.NumberFormat('es-ES', {minimumFractionDigits: d, maximumFractionDigits: d}).format(n || 0);
             
             // PÁGINA 1: COMPLETA (3 columnas) - Se crea automáticamente con new jsPDF()
             let y = 15;
@@ -11897,10 +11898,10 @@
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(7);
             doc.text('[ES0021000020679723GY]', leftX + 3, leftY + 5);
-            doc.text('Tipo: 2.0TD', leftX + colW - 3, leftY + 5, { align: 'right' });
+            doc.text('Tipo: ' + currentGasTariff, leftX + colW - 3, leftY + 5, { align: 'right' });
             doc.text('Días: ' + dias, leftX + colW - 3, leftY + 10, { align: 'right' });
             doc.setFontSize(8);
-            doc.text('DRK - DRK FIJO 6 META 4', leftX + 3, leftY + 13);
+            doc.text('DRK - ' + resFijo.name, leftX + 3, leftY + 13);
             
             leftY += 22;
             doc.setFillColor(107, 125, 142);
@@ -11915,11 +11916,9 @@
             doc.text('ENERGÍA:', leftX + colW/2, leftY + 5);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(6);
-            doc.text('P1: 0,090000 €kW/día', leftX + 3, leftY + 9);
-            doc.text('E1: 0,099000 €kWh', leftX + colW/2, leftY + 9);
-            doc.text('P2: 0,069000 €kW/día', leftX + 3, leftY + 13);
-            doc.text('E2: 0,099000 €kWh', leftX + colW/2, leftY + 13);
-            doc.text('E3: 0,069000 €kWh', leftX + colW/2, leftY + 17);
+            const pFijoDiario = resFijo.p_fijo_diario / 365;
+            doc.text('P1: ' + num(pFijoDiario, 6) + ' €/día', leftX + 3, leftY + 9);
+            doc.text('E1: ' + num(resFijo.p1_price, 6) + ' €kWh', leftX + colW/2, leftY + 9);
             
             leftY += 22;
             doc.setFillColor(90, 110, 130);
@@ -11932,11 +11931,12 @@
             doc.setTextColor(0, 0, 0);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(6.5);
-            doc.text('P1: (5,70 kW x ' + dias + ' d x 0,090000)', leftX + 2, leftY);
-            doc.text('19,19 €', leftX + colW - 2, leftY, { align: 'right' });
+            const potP1 = resFijo.total_fijo / 2;
+            doc.text('P1: (5,70 kW x ' + dias + ' d x ' + num(pFijoDiario, 6) + ')', leftX + 2, leftY);
+            doc.text(eur(potP1), leftX + colW - 2, leftY, { align: 'right' });
             leftY += 4;
-            doc.text('P2: (5,70 kW x ' + dias + ' d x 0,090000)', leftX + 2, leftY);
-            doc.text('19,19 €', leftX + colW - 2, leftY, { align: 'right' });
+            doc.text('P2: (5,70 kW x ' + dias + ' d x ' + num(pFijoDiario, 6) + ')', leftX + 2, leftY);
+            doc.text(eur(potP1), leftX + colW - 2, leftY, { align: 'right' });
             
             leftY += 8;
             doc.setFillColor(90, 110, 130);
@@ -11953,14 +11953,17 @@
             const kwhP = Math.round(kwh * 0.39);
             const kwhL = Math.round(kwh * 0.31);
             const kwhV = kwh - kwhP - kwhL;
-            doc.text('E1 (Punta): (' + kwhP + ' kWh x 0,099000)', leftX + 2, leftY);
-            doc.text('22,37 €', leftX + colW - 2, leftY, { align: 'right' });
+            const enP1 = kwhP * resFijo.p1_price;
+            const enL1 = kwhL * resFijo.p1_price;
+            const enV1 = kwhV * resFijo.p1_price;
+            doc.text('E1 (Punta): (' + kwhP + ' kWh x ' + num(resFijo.p1_price, 6) + ')', leftX + 2, leftY);
+            doc.text(eur(enP1), leftX + colW - 2, leftY, { align: 'right' });
             leftY += 4;
-            doc.text('E2 (Llano): (' + kwhL + ' kWh x 0,099000)', leftX + 2, leftY);
-            doc.text('17,92 €', leftX + colW - 2, leftY, { align: 'right' });
+            doc.text('E2 (Llano): (' + kwhL + ' kWh x ' + num(resFijo.p1_price, 6) + ')', leftX + 2, leftY);
+            doc.text(eur(enL1), leftX + colW - 2, leftY, { align: 'right' });
             leftY += 4;
-            doc.text('E3 (Valle): (' + kwhV + ' kWh x 0,099000)', leftX + 2, leftY);
-            doc.text('30,39 €', leftX + colW - 2, leftY, { align: 'right' });
+            doc.text('E3 (Valle): (' + kwhV + ' kWh x ' + num(resFijo.p1_price, 6) + ')', leftX + 2, leftY);
+            doc.text(eur(enV1), leftX + colW - 2, leftY, { align: 'right' });
             
             leftY += 8;
             doc.setFillColor(107, 125, 142);
@@ -11986,10 +11989,10 @@
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(7);
             doc.text('[ES0021000020679723GY]', rightX + 3, rightY + 5);
-            doc.text('Tipo: 2.0TD', rightX + colW - 3, rightY + 5, { align: 'right' });
+            doc.text('Tipo: ' + currentGasTariff, rightX + colW - 3, rightY + 5, { align: 'right' });
             doc.text('Días: ' + dias, rightX + colW - 3, rightY + 10, { align: 'right' });
             doc.setFontSize(8);
-            doc.text('DRK INDEX - DRK INDEX 4 2026', rightX + 3, rightY + 13);
+            doc.text('DRK INDEX - ' + resIndexed.name, rightX + 3, rightY + 13);
             
             rightY += 22;
             doc.roundedRect(rightX, rightY, colW, 8, 2, 2, 'F');
@@ -12004,11 +12007,9 @@
             doc.text('ENERGÍA:', rightX + colW/2, rightY + 5);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(6);
-            doc.text('P1: 0,073782 €kW/día', rightX + 3, rightY + 9);
-            doc.text('E1: 0,203000 €kWh', rightX + colW/2, rightY + 9);
-            doc.text('P2: 0,001911 €kW/día', rightX + 3, rightY + 13);
-            doc.text('E2: 0,130950 €kWh', rightX + colW/2, rightY + 13);
-            doc.text('E3: 0,106447 €kWh', rightX + colW/2, rightY + 17);
+            const pIndexDiario = resIndexed.p_fijo_diario / 365;
+            doc.text('P1: ' + num(pIndexDiario, 6) + ' €/día', rightX + 3, rightY + 9);
+            doc.text('E1: ' + num(resIndexed.p1_price, 6) + ' €kWh', rightX + colW/2, rightY + 9);
             
             rightY += 22;
             doc.setFillColor(90, 110, 130);
@@ -12021,11 +12022,12 @@
             doc.setTextColor(0, 0, 0);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(6.5);
-            doc.text('P1: (5,70 kW x ' + dias + ' d x 0,073782)', rightX + 2, rightY);
-            doc.text('14,30 €', rightX + colW - 2, rightY, { align: 'right' });
+            const potP1Index = resIndexed.total_fijo / 2;
+            doc.text('P1: (5,70 kW x ' + dias + ' d x ' + num(pIndexDiario, 6) + ')', rightX + 2, rightY);
+            doc.text(eur(potP1Index), rightX + colW - 2, rightY, { align: 'right' });
             rightY += 4;
-            doc.text('P2: (5,70 kW x ' + dias + ' d x 0,001911)', rightX + 2, rightY);
-            doc.text('0,37 €', rightX + colW - 2, rightY, { align: 'right' });
+            doc.text('P2: (5,70 kW x ' + dias + ' d x ' + num(pIndexDiario, 6) + ')', rightX + 2, rightY);
+            doc.text(eur(potP1Index), rightX + colW - 2, rightY, { align: 'right' });
             
             rightY += 8;
             doc.setFillColor(90, 110, 130);
@@ -12039,14 +12041,17 @@
             doc.setTextColor(0, 0, 0);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(6.5);
-            doc.text('E1 (Punta): (' + kwhP + ' kWh x 0,203000)', rightX + 2, rightY);
-            doc.text('45,88 €', rightX + colW - 2, rightY, { align: 'right' });
+            const enP1Index = kwhP * resIndexed.p1_price;
+            const enL1Index = kwhL * resIndexed.p1_price;
+            const enV1Index = kwhV * resIndexed.p1_price;
+            doc.text('E1 (Punta): (' + kwhP + ' kWh x ' + num(resIndexed.p1_price, 6) + ')', rightX + 2, rightY);
+            doc.text(eur(enP1Index), rightX + colW - 2, rightY, { align: 'right' });
             rightY += 4;
-            doc.text('E2 (Llano): (' + kwhL + ' kWh x 0,130950)', rightX + 2, rightY);
-            doc.text('23,70 €', rightX + colW - 2, rightY, { align: 'right' });
+            doc.text('E2 (Llano): (' + kwhL + ' kWh x ' + num(resIndexed.p1_price, 6) + ')', rightX + 2, rightY);
+            doc.text(eur(enL1Index), rightX + colW - 2, rightY, { align: 'right' });
             rightY += 4;
-            doc.text('E3 (Valle): (' + kwhV + ' kWh x 0,106447)', rightX + 2, rightY);
-            doc.text('32,68 €', rightX + colW - 2, rightY, { align: 'right' });
+            doc.text('E3 (Valle): (' + kwhV + ' kWh x ' + num(resIndexed.p1_price, 6) + ')', rightX + 2, rightY);
+            doc.text(eur(enV1Index), rightX + colW - 2, rightY, { align: 'right' });
             
             rightY += 8;
             doc.setFillColor(107, 125, 142);
