@@ -11904,83 +11904,90 @@
             doc.text('DRK - ' + resFijo.name, leftX + 3, leftY + 13);
             
             leftY += 22;
-            doc.setFillColor(107, 125, 142);
-            doc.roundedRect(leftX, leftY, colW, 8, 2, 2, 'F');
-            doc.setFontSize(8);
-            doc.text('PRECIOS APLICADOS:', leftX + 3, leftY + 5);
-            
-            leftY += 12;
-            doc.roundedRect(leftX, leftY, colW, 18, 2, 2, 'F');
-            doc.setFontSize(7);
-            doc.text('POTENCIA:', leftX + 3, leftY + 5);
-            doc.text('ENERGÍA:', leftX + colW/2, leftY + 5);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(6);
-            const pFijoDiario = resFijo.p_fijo_diario / 365;
-            doc.text('P1: ' + num(pFijoDiario, 6) + ' €/día', leftX + 3, leftY + 9);
-            doc.text('E1: ' + num(resFijo.p1_price, 6) + ' €kWh', leftX + colW/2, leftY + 9);
-            
-            leftY += 22;
-            doc.setFillColor(90, 110, 130);
-            doc.roundedRect(leftX, leftY, colW, 8, 2, 2, 'F');
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8);
-            doc.text('POTENCIA', leftX + 3, leftY + 5);
-            
-            leftY += 12;
+            // TÉRMINO FIJO
             doc.setTextColor(0, 0, 0);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(6.5);
-            const potP1 = resFijo.total_fijo / 2;
-            doc.text('P1: (5,70 kW x ' + dias + ' d x ' + num(pFijoDiario, 6) + ')', leftX + 2, leftY);
-            doc.text(eur(potP1), leftX + colW - 2, leftY, { align: 'right' });
-            leftY += 4;
-            doc.text('P2: (5,70 kW x ' + dias + ' d x ' + num(pFijoDiario, 6) + ')', leftX + 2, leftY);
-            doc.text(eur(potP1), leftX + colW - 2, leftY, { align: 'right' });
-            
-            leftY += 8;
-            doc.setFillColor(90, 110, 130);
-            doc.roundedRect(leftX, leftY, colW, 8, 2, 2, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8);
-            doc.text('ENERGÍA', leftX + 3, leftY + 5);
-            
-            leftY += 12;
-            doc.setTextColor(0, 0, 0);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(6.5);
-            const kwhP = Math.round(kwh * 0.39);
-            const kwhL = Math.round(kwh * 0.31);
-            const kwhV = kwh - kwhP - kwhL;
-            const enP1 = kwhP * resFijo.p1_price;
-            const enL1 = kwhL * resFijo.p1_price;
-            const enV1 = kwhV * resFijo.p1_price;
-            doc.text('E1 (Punta): (' + kwhP + ' kWh x ' + num(resFijo.p1_price, 6) + ')', leftX + 2, leftY);
-            doc.text(eur(enP1), leftX + colW - 2, leftY, { align: 'right' });
-            leftY += 4;
-            doc.text('E2 (Llano): (' + kwhL + ' kWh x ' + num(resFijo.p1_price, 6) + ')', leftX + 2, leftY);
-            doc.text(eur(enL1), leftX + colW - 2, leftY, { align: 'right' });
-            leftY += 4;
-            doc.text('E3 (Valle): (' + kwhV + ' kWh x ' + num(resFijo.p1_price, 6) + ')', leftX + 2, leftY);
-            doc.text(eur(enV1), leftX + colW - 2, leftY, { align: 'right' });
-            
-            leftY += 8;
-            doc.setFillColor(107, 125, 142);
-            doc.roundedRect(leftX, leftY, colW, 10, 2, 2, 'F');
-            doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(9);
-            doc.text('TOTAL (' + dias + ' DÍAS)', leftX + 3, leftY + 7);
-            doc.text(eur(resFijo.total), leftX + colW - 3, leftY + 7, { align: 'right' });
+            doc.text('TÉRMINO FIJO (Precio en €/día)', leftX, leftY);
+            leftY += 6;
             
-            leftY += 15;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            const pFijoDiario = resFijo.p_fijo_diario / 365;
+            doc.text('Precio fijo (' + dias + ' días x ' + num(pFijoDiario, 6) + ')', leftX + 3, leftY);
+            doc.text(eur(resFijo.total_fijo), leftX + colW - 2, leftY, { align: 'right' });
+            leftY += 5;
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('SUBTOTAL POTENCIA', leftX + 3, leftY);
+            doc.text(eur(resFijo.total_fijo), leftX + colW - 2, leftY, { align: 'right' });
+            leftY += 10;
+            
+            // TÉRMINO ENERGÍA
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text('TÉRMINO ENERGÍA (Precios en €/kWh)', leftX, leftY);
+            leftY += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            doc.text('Energía (' + kwh + ' kWh x ' + num(resFijo.p1_price, 6) + ')', leftX + 3, leftY);
+            doc.text(eur(resFijo.total_energia), leftX + colW - 2, leftY, { align: 'right' });
+            leftY += 5;
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('Subtotal Energía (Bruto)', leftX + 3, leftY);
+            doc.text(eur(resFijo.total_energia), leftX + colW - 2, leftY, { align: 'right' });
+            leftY += 10;
+            
+            // SUBTOTAL BASE
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            const subtotalBase = resFijo.total_fijo + resFijo.total_energia;
+            doc.text('SUBTOTAL BASE (P+E)', leftX, leftY);
+            doc.text(eur(subtotalBase), leftX + colW - 2, leftY, { align: 'right' });
+            leftY += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            doc.text('Imp. Hidrocarburos (€0,00234 x ' + kwh + ' kWh)', leftX, leftY);
+            doc.text(eur(resFijo.impuesto_hidrocarburo), leftX + colW - 2, leftY, { align: 'right' });
+            leftY += 5;
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('BASE IMPONIBLE', leftX, leftY);
+            doc.text(eur(subtotalBase + resFijo.impuesto_hidrocarburo), leftX + colW - 2, leftY, { align: 'right' });
+            leftY += 5;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.text('IVA (21%)', leftX, leftY);
+            doc.text(eur(resFijo.iva), leftX + colW - 2, leftY, { align: 'right' });
+            leftY += 10;
+            
+            // TOTAL
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(leftX, leftY - 3, colW, 12, 2, 2, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.text('TOTAL FACTURA (' + dias + ' DÍAS)', leftX + 3, leftY + 5);
+            doc.text(eur(resFijo.total), leftX + colW - 3, leftY + 5, { align: 'right' });
+            
+            leftY += 14;
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('TOTAL AÑO (PROYECTADO)', leftX, leftY);
+            doc.text(eur(resFijo.total * 365 / dias), leftX + colW - 2, leftY, { align: 'right' });
+            
+            leftY += 12;
             doc.setFillColor(211, 47, 47);
-            doc.roundedRect(leftX, leftY, colW, 12, 2, 2, 'F');
+            doc.roundedRect(leftX, leftY, colW, 18, 2, 2, 'F');
+            doc.setTextColor(255, 255, 255);
             doc.setFontSize(7);
-            doc.text('AHORRO:', leftX + 3, leftY + 8);
-            doc.setFontSize(11);
-            doc.text(eur(resFijo.ahorro_anual), leftX + colW - 3, leftY + 8, { align: 'right' });
+            doc.text('TU AHORRO ANUAL ESTIMADO ES:', leftX + 3, leftY + 8);
+            doc.setFontSize(13);
+            doc.text(eur(resFijo.ahorro_anual) + '/ AÑO', leftX + 3, leftY + 15);
             
             // COLUMNA DERECHA: INDEXADA
             let rightY = y;
@@ -11995,80 +12002,90 @@
             doc.text('DRK INDEX - ' + resIndexed.name, rightX + 3, rightY + 13);
             
             rightY += 22;
-            doc.roundedRect(rightX, rightY, colW, 8, 2, 2, 'F');
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8);
-            doc.text('PRECIOS APLICADOS:', rightX + 3, rightY + 5);
-            
-            rightY += 12;
-            doc.roundedRect(rightX, rightY, colW, 18, 2, 2, 'F');
-            doc.setFontSize(7);
-            doc.text('POTENCIA:', rightX + 3, rightY + 5);
-            doc.text('ENERGÍA:', rightX + colW/2, rightY + 5);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(6);
-            const pIndexDiario = resIndexed.p_fijo_diario / 365;
-            doc.text('P1: ' + num(pIndexDiario, 6) + ' €/día', rightX + 3, rightY + 9);
-            doc.text('E1: ' + num(resIndexed.p1_price, 6) + ' €kWh', rightX + colW/2, rightY + 9);
-            
-            rightY += 22;
-            doc.setFillColor(90, 110, 130);
-            doc.roundedRect(rightX, rightY, colW, 8, 2, 2, 'F');
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8);
-            doc.text('POTENCIA', rightX + 3, rightY + 5);
-            
-            rightY += 12;
+            // TÉRMINO FIJO
             doc.setTextColor(0, 0, 0);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(6.5);
-            const potP1Index = resIndexed.total_fijo / 2;
-            doc.text('P1: (5,70 kW x ' + dias + ' d x ' + num(pIndexDiario, 6) + ')', rightX + 2, rightY);
-            doc.text(eur(potP1Index), rightX + colW - 2, rightY, { align: 'right' });
-            rightY += 4;
-            doc.text('P2: (5,70 kW x ' + dias + ' d x ' + num(pIndexDiario, 6) + ')', rightX + 2, rightY);
-            doc.text(eur(potP1Index), rightX + colW - 2, rightY, { align: 'right' });
-            
-            rightY += 8;
-            doc.setFillColor(90, 110, 130);
-            doc.roundedRect(rightX, rightY, colW, 8, 2, 2, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8);
-            doc.text('ENERGÍA', rightX + 3, rightY + 5);
-            
-            rightY += 12;
-            doc.setTextColor(0, 0, 0);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(6.5);
-            const enP1Index = kwhP * resIndexed.p1_price;
-            const enL1Index = kwhL * resIndexed.p1_price;
-            const enV1Index = kwhV * resIndexed.p1_price;
-            doc.text('E1 (Punta): (' + kwhP + ' kWh x ' + num(resIndexed.p1_price, 6) + ')', rightX + 2, rightY);
-            doc.text(eur(enP1Index), rightX + colW - 2, rightY, { align: 'right' });
-            rightY += 4;
-            doc.text('E2 (Llano): (' + kwhL + ' kWh x ' + num(resIndexed.p1_price, 6) + ')', rightX + 2, rightY);
-            doc.text(eur(enL1Index), rightX + colW - 2, rightY, { align: 'right' });
-            rightY += 4;
-            doc.text('E3 (Valle): (' + kwhV + ' kWh x ' + num(resIndexed.p1_price, 6) + ')', rightX + 2, rightY);
-            doc.text(eur(enV1Index), rightX + colW - 2, rightY, { align: 'right' });
-            
-            rightY += 8;
-            doc.setFillColor(107, 125, 142);
-            doc.roundedRect(rightX, rightY, colW, 10, 2, 2, 'F');
-            doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(9);
-            doc.text('TOTAL (' + dias + ' DÍAS)', rightX + 3, rightY + 7);
-            doc.text(eur(resIndexed.total), rightX + colW - 3, rightY + 7, { align: 'right' });
+            doc.text('TÉRMINO FIJO (Precio en €/día)', rightX, rightY);
+            rightY += 6;
             
-            rightY += 15;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            const pIndexDiario = resIndexed.p_fijo_diario / 365;
+            doc.text('Precio fijo (' + dias + ' días x ' + num(pIndexDiario, 6) + ')', rightX + 3, rightY);
+            doc.text(eur(resIndexed.total_fijo), rightX + colW - 2, rightY, { align: 'right' });
+            rightY += 5;
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('SUBTOTAL POTENCIA', rightX + 3, rightY);
+            doc.text(eur(resIndexed.total_fijo), rightX + colW - 2, rightY, { align: 'right' });
+            rightY += 10;
+            
+            // TÉRMINO ENERGÍA
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text('TÉRMINO ENERGÍA (Precios en €/kWh)', rightX, rightY);
+            rightY += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            doc.text('Energía (' + kwh + ' kWh x ' + num(resIndexed.p1_price, 6) + ')', rightX + 3, rightY);
+            doc.text(eur(resIndexed.total_energia), rightX + colW - 2, rightY, { align: 'right' });
+            rightY += 5;
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('Subtotal Energía (Bruto)', rightX + 3, rightY);
+            doc.text(eur(resIndexed.total_energia), rightX + colW - 2, rightY, { align: 'right' });
+            rightY += 10;
+            
+            // SUBTOTAL BASE
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            const subtotalBaseIndex = resIndexed.total_fijo + resIndexed.total_energia;
+            doc.text('SUBTOTAL BASE (P+E)', rightX, rightY);
+            doc.text(eur(subtotalBaseIndex), rightX + colW - 2, rightY, { align: 'right' });
+            rightY += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            doc.text('Imp. Hidrocarburos (€0,00234 x ' + kwh + ' kWh)', rightX, rightY);
+            doc.text(eur(resIndexed.impuesto_hidrocarburo), rightX + colW - 2, rightY, { align: 'right' });
+            rightY += 5;
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('BASE IMPONIBLE', rightX, rightY);
+            doc.text(eur(subtotalBaseIndex + resIndexed.impuesto_hidrocarburo), rightX + colW - 2, rightY, { align: 'right' });
+            rightY += 5;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.text('IVA (21%)', rightX, rightY);
+            doc.text(eur(resIndexed.iva), rightX + colW - 2, rightY, { align: 'right' });
+            rightY += 10;
+            
+            // TOTAL
+            doc.setFillColor(107, 125, 142);
+            doc.roundedRect(rightX, rightY - 3, colW, 12, 2, 2, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.text('TOTAL FACTURA (' + dias + ' DÍAS)', rightX + 3, rightY + 5);
+            doc.text(eur(resIndexed.total), rightX + colW - 3, rightY + 5, { align: 'right' });
+            
+            rightY += 14;
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('TOTAL AÑO (PROYECTADO)', rightX, rightY);
+            doc.text(eur(resIndexed.total * 365 / dias), rightX + colW - 2, rightY, { align: 'right' });
+            
+            rightY += 12;
             doc.setFillColor(211, 47, 47);
-            doc.roundedRect(rightX, rightY, colW, 12, 2, 2, 'F');
+            doc.roundedRect(rightX, rightY, colW, 18, 2, 2, 'F');
+            doc.setTextColor(255, 255, 255);
             doc.setFontSize(7);
-            doc.text('AHORRO:', rightX + 3, rightY + 8);
-            doc.setFontSize(11);
-            doc.text(eur(resIndexed.ahorro_anual), rightX + colW - 3, rightY + 8, { align: 'right' });
+            doc.text('TU AHORRO ANUAL ESTIMADO ES:', rightX + 3, rightY + 8);
+            doc.setFontSize(13);
+            doc.text(eur(resIndexed.ahorro_anual) + '/ AÑO', rightX + 3, rightY + 15);
             
             // PÁGINA 3: CUAL ES LA DIFERENCIA
             doc.addPage();
