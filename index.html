@@ -11200,7 +11200,7 @@
             });
             
             // GUARDAR DATOS PARA EXPORTAR (NUEVO)
-            window.gasExportData = { results, dias, kwh, totalCliente };
+            window.gasExportData = { results, dias, kwh, totalCliente, comparisonMode };
             
             // AGREGAR BOTONES DE EXPORTAR (NUEVO)
             html += `
@@ -11297,15 +11297,11 @@
                 return;
             }
             
-            const { results, dias, kwh, totalCliente } = window.gasExportData;
+            const { results, dias, kwh, totalCliente, comparisonMode } = window.gasExportData;
             
             try {
-                // Detectar si es POWER CUP o DRK
-                const isPowerCup = results.some(r => 
-                    r.name.toUpperCase().includes('POWER') || 
-                    r.name.toUpperCase().includes('ELEIA') ||
-                    r.name.toUpperCase().includes('BOE')
-                );
+                // Detectar si es POWER CUP o DRK basado en comparisonMode
+                const isPowerCup = comparisonMode === 'overall_best';
                 
                 const isDual = results.length === 2 && 
                               results.some(r => r.name.toUpperCase().includes('INDEX')) &&
