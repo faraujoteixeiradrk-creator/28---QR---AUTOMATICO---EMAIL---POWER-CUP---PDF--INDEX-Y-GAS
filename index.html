@@ -12297,7 +12297,10 @@
             // Asa de la taza
             doc.setDrawColor(75, 85, 70);
             doc.setLineWidth(2.5);
-            doc.arc(logoX + 14, logoY, 5, 5, -90, 90, null, 'S');
+            // Asa simplificada
+            doc.line(logoX + 11, logoY - 4, logoX + 15, logoY - 2);
+            doc.line(logoX + 15, logoY - 2, logoX + 15, logoY + 2);
+            doc.line(logoX + 15, logoY + 2, logoX + 11, logoY + 4);
             
             // Vapor (3 líneas curvas amarillas)
             doc.setDrawColor(255, 200, 0);
@@ -12617,7 +12620,10 @@
             // Asa de la taza
             doc.setDrawColor(75, 85, 70);
             doc.setLineWidth(2.5);
-            doc.arc(logoX + 14, logoY, 5, 5, -90, 90, null, 'S');
+            // Asa simplificada
+            doc.line(logoX + 11, logoY - 4, logoX + 15, logoY - 2);
+            doc.line(logoX + 15, logoY - 2, logoX + 15, logoY + 2);
+            doc.line(logoX + 15, logoY + 2, logoX + 11, logoY + 4);
             
             // Vapor (3 líneas curvas amarillas)
             doc.setDrawColor(255, 200, 0);
