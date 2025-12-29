@@ -11721,448 +11721,167 @@
             window.showMessageModal("⏳ Generando PDF comparativo...");
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-            const eur = n => new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2}).format(n || 0);
-            const pageWidth = 210;
-            const margin = 12;
+            const eur = n => new Intl.NumberFormat('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(n || 0) + ' €';
             
-            // PÁGINA 1: EN BLANCO (solo se crea automáticamente, no ponemos contenido)
+            // PÁGINA 1: VACÍA (la primera página se crea automáticamente vacía)
             
-            // PÁGINA 2: LA ÚNICA COMPLETA (IMAGEN 4)
+            // PÁGINA 2: COMPLETA (3 columnas)
             doc.addPage();
-            let yPos = 15;
+            let y = 15;
             
-            // Header gris con logo
+            // Header gris
             doc.setFillColor(107, 125, 142);
-            doc.rect(0, 0, pageWidth, 35, 'F');
-            
-            // Logo DRK pequeño
-            const logoX2 = 20;
-            const logoY2 = 18;
-            const logoRadius2 = 6;
-            doc.setFillColor(219, 68, 55);
-            doc.circle(logoX2 - 1, logoY2 + 1, logoRadius2 * 0.8, 'F');
-            doc.setFillColor(66, 133, 244);
-            doc.circle(logoX2 + 1, logoY2 - 1, logoRadius2 * 0.8, 'F');
-            doc.setFillColor(244, 180, 0);
-            doc.circle(logoX2 - 1, logoY2 - 1, logoRadius2 * 0.7, 'F');
-            doc.setFillColor(15, 157, 88);
-            doc.circle(logoX2 + 1, logoY2 + 1, logoRadius2 * 0.7, 'F');
-            doc.setFillColor(255, 255, 255);
-            doc.circle(logoX2, logoY2, logoRadius2 * 0.4, 'F');
-            
+            doc.rect(0, 0, 210, 35, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(16);
-            doc.text('DRK', logoX2 + 12, 14);
+            doc.text('DRK', 32, 14);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
-            doc.text('Liderando el ahorro y la', logoX2 + 12, 20);
-            doc.text('eficiencia energética.', logoX2 + 12, 25);
-            
+            doc.text('Liderando el ahorro y la', 32, 20);
+            doc.text('eficiencia energética.', 32, 25);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(10);
-            doc.text('ESTUDIO DE AHORRO', pageWidth - margin, 13, {align: 'right'});
+            doc.text('ESTUDIO DE AHORRO', 198, 13, { align: 'right' });
             doc.setFontSize(11);
-            doc.text('COMPARATIVA', pageWidth - margin, 21, {align: 'right'});
+            doc.text('COMPARATIVA', 198, 21, { align: 'right' });
             doc.setFontSize(10);
-            doc.text('PROFESIONAL', pageWidth - margin, 28, {align: 'right'});
+            doc.text('PROFESIONAL', 198, 28, { align: 'right' });
             
-            yPos = 45;
-            
-            // Título
+            y = 45;
             doc.setTextColor(40, 50, 60);
             doc.setFontSize(14);
-            doc.text('COMPARATIVA PROFESIONAL - DRK', margin, yPos);
-            yPos += 8;
-            
+            doc.text('COMPARATIVA PROFESIONAL - DRK', 12, y);
+            y += 8;
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(9);
             doc.setTextColor(100, 110, 120);
-            doc.text('CLIENTE: [NOMBRE COMPLETO CLIENTE]', margin, yPos);
-            yPos += 5;
-            doc.text('CUPS TOTALES: 1', margin, yPos);
-            yPos += 15;
+            doc.text('CLIENTE: [NOMBRE COMPLETO CLIENTE]', 12, y);
+            y += 5;
+            doc.text('CUPS TOTALES: 1', 12, y);
+            y += 15;
             
-            // Caja gris grande "LA MEJOR OPCIÓN"
+            // Caja gris grande
             doc.setFillColor(107, 125, 142);
-            doc.roundedRect(margin, yPos, pageWidth - 2*margin, 40, 3, 3, 'F');
-            
+            doc.roundedRect(12, y, 186, 40, 3, 3, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
-            doc.text('LA MEJOR OPCIÓN PARA TI ES', pageWidth / 2, yPos + 10, {align: 'center'});
-            
+            doc.text('LA MEJOR OPCIÓN PARA TI ES', 105, y + 10, { align: 'center' });
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(22);
-            doc.text('DRK', pageWidth / 2, yPos + 22, {align: 'center'});
-            
+            doc.text('DRK', 105, y + 22, { align: 'center' });
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(9);
-            doc.text('Ofrece el mayor ahorro consolidado con DRK ENERGÍA.', pageWidth / 2, yPos + 32, {align: 'center'});
+            doc.text('Ofrece el mayor ahorro consolidado con DRK ENERGÍA.', 105, y + 32, { align: 'center' });
             
-            yPos += 50;
+            y += 50;
             
             // 3 COLUMNAS
-            const col1X = margin;
-            const col2X = margin + 65;
-            const col3X = margin + 130;
-            
-            // Columna 1: TU FACTURA ACTUAL
-            doc.setTextColor(40, 50, 60);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(10);
-            doc.text('TU FACTURA ACTUAL', col1X, yPos);
-            yPos += 8;
-            
             const factMes = totalCliente * 30 / dias;
-            doc.setTextColor(220, 38, 38);
-            doc.setFontSize(16);
-            doc.text(eur(factMes), col1X, yPos);
-            
-            // Línea tachada
-            const tW = doc.getTextWidth(eur(factMes));
-            doc.setDrawColor(220, 38, 38);
-            doc.setLineWidth(1.5);
-            doc.line(col1X, yPos - 4, col1X + tW, yPos - 4);
-            
-            yPos += 5;
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(7);
-            doc.setTextColor(100, 110, 120);
-            doc.text('Total Periodo (' + dias + ' días)', col1X, yPos);
-            
-            yPos += 8;
             const factAnio = totalCliente * 365 / dias;
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(14);
-            doc.setTextColor(220, 38, 38);
-            doc.text(eur(factAnio) + '/año', col1X, yPos);
-            
-            const tW2 = doc.getTextWidth(eur(factAnio) + '/año');
-            doc.line(col1X, yPos - 4, col1X + tW2, yPos - 4);
-            
-            yPos -= 21;
-            
-            // Columna 2: TU AHORRO ANUAL FIJO
-            doc.setFillColor(107, 125, 142);
-            doc.roundedRect(col2X - 2, yPos - 7, 63, 10, 2, 2, 'F');
-            
-            doc.setTextColor(255, 255, 255);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8);
-            doc.text('TU AHORRO ANUAL FIJO', col2X + 31, yPos - 1, {align: 'center'});
-            
-            yPos += 8;
-            doc.setTextColor(76, 175, 80);
-            doc.setFontSize(20);
-            doc.text(eur(resFijo.ahorro_anual), col2X + 31, yPos, {align: 'center'});
-            
-            yPos += 8;
-            doc.setTextColor(100, 110, 120);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(8);
-            doc.text('TU NUEVO COSTE DRK', col2X + 31, yPos, {align: 'center'});
-            
-            yPos += 6;
             const fijoMes = resFijo.total * 30 / dias;
-            doc.setTextColor(59, 130, 246);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(14);
-            doc.text(eur(fijoMes) + '/mes', col2X + 31, yPos, {align: 'center'});
-            
-            yPos += 5;
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(7);
-            doc.setTextColor(100, 110, 120);
-            doc.text('Estimado Mensual', col2X + 31, yPos, {align: 'center'});
-            
-            yPos += 7;
             const fijoAnio = resFijo.total * 365 / dias;
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(12);
-            doc.setTextColor(59, 130, 246);
-            doc.text(eur(fijoAnio) + '/año', col2X + 31, yPos, {align: 'center'});
-            
-            yPos -= 38;
-            
-            // Columna 3: TU AHORRO ANUAL INDEXADO
-            doc.setFillColor(107, 125, 142);
-            doc.roundedRect(col3X - 2, yPos - 7, 68, 10, 2, 2, 'F');
-            
-            doc.setTextColor(255, 255, 255);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8);
-            doc.text('TU AHORRO ANUAL INDEXADO', col3X + 34, yPos - 1, {align: 'center'});
-            
-            yPos += 8;
-            doc.setTextColor(76, 175, 80);
-            doc.setFontSize(20);
-            doc.text(eur(resIndexed.ahorro_anual), col3X + 34, yPos, {align: 'center'});
-            
-            yPos += 8;
-            doc.setTextColor(100, 110, 120);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(8);
-            doc.text('TU NUEVO COSTE DRK', col3X + 34, yPos, {align: 'center'});
-            
-            yPos += 6;
             const indexMes = resIndexed.total * 30 / dias;
-            doc.setTextColor(76, 175, 80);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(14);
-            doc.text(eur(indexMes) + '/mes', col3X + 34, yPos, {align: 'center'});
-            
-            yPos += 5;
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(7);
-            doc.setTextColor(100, 110, 120);
-            doc.text('Estimado Mensual', col3X + 34, yPos, {align: 'center'});
-            
-            yPos += 7;
             const indexAnio = resIndexed.total * 365 / dias;
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(12);
-            doc.setTextColor(76, 175, 80);
-            doc.text(eur(indexAnio) + '/año', col3X + 34, yPos, {align: 'center'});
             
-            // PÁGINAS 3-4: VACÍAS
-            doc.addPage();
-            doc.addPage();
-            
-            // Footer en todas las páginas
-            doc.setFont('helvetica', 'italic');
-            doc.setFontSize(7);
-            doc.setTextColor(120, 120, 120);
-            doc.text('Documento generado automáticamente - DRK Energía', pageWidth / 2, 285, {align: 'center'});
-            doc.text('Fecha: ' + new Date().toLocaleDateString('es-ES'), pageWidth / 2, 290, {align: 'center'});
-            
-            for (let i = 1; i <= doc.internal.getNumberOfPages(); i++) {
-                doc.setPage(i);
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(8);
-                doc.setTextColor(120, 120, 120);
-                doc.text('Pág. ' + i + ' de ' + doc.internal.getNumberOfPages(), pageWidth - margin, 290, {align: 'right'});
-            }
-            
-            doc.save('Comparativa_GAS_Dual_' + currentGasTariff + '_' + new Date().toISOString().slice(0,10) + '.pdf');
-            window.showMessageModal("✅ PDF comparativo generado", false);
-        }
-            
-            // Header gris con logo
-            doc.setFillColor(107, 125, 142);
-            doc.rect(0, 0, pageWidth, 35, 'F');
-            
-            // Logo DRK pequeño
-            const logoX2 = 20;
-            const logoY2 = 18;
-            const logoRadius2 = 6;
-            doc.setFillColor(219, 68, 55);
-            doc.circle(logoX2 - 1, logoY2 + 1, logoRadius2 * 0.8, 'F');
-            doc.setFillColor(66, 133, 244);
-            doc.circle(logoX2 + 1, logoY2 - 1, logoRadius2 * 0.8, 'F');
-            doc.setFillColor(244, 180, 0);
-            doc.circle(logoX2 - 1, logoY2 - 1, logoRadius2 * 0.7, 'F');
-            doc.setFillColor(15, 157, 88);
-            doc.circle(logoX2 + 1, logoY2 + 1, logoRadius2 * 0.7, 'F');
-            doc.setFillColor(255, 255, 255);
-            doc.circle(logoX2, logoY2, logoRadius2 * 0.4, 'F');
-            
-            doc.setTextColor(255, 255, 255);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(16);
-            doc.text('DRK', logoX2 + 12, 14);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(8);
-            doc.text('Liderando el ahorro y la', logoX2 + 12, 20);
-            doc.text('eficiencia energética.', logoX2 + 12, 25);
-            
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(10);
-            doc.text('ESTUDIO DE AHORRO', pageWidth - margin, 13, {align: 'right'});
-            doc.setFontSize(11);
-            doc.text('COMPARATIVA', pageWidth - margin, 21, {align: 'right'});
-            doc.setFontSize(10);
-            doc.text('PROFESIONAL', pageWidth - margin, 28, {align: 'right'});
-            
-            yPos = 45;
-            
-            // Título
-            doc.setTextColor(40, 50, 60);
-            doc.setFontSize(14);
-            doc.text('COMPARATIVA PROFESIONAL - DRK', margin, yPos);
-            yPos += 8;
-            
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(9);
-            doc.setTextColor(100, 110, 120);
-            doc.text('CLIENTE: [NOMBRE COMPLETO CLIENTE]', margin, yPos);
-            yPos += 5;
-            doc.text('CUPS TOTALES: 1', margin, yPos);
-            yPos += 15;
-            
-            // Caja gris grande "LA MEJOR OPCIÓN"
-            doc.setFillColor(107, 125, 142);
-            doc.roundedRect(margin, yPos, pageWidth - 2*margin, 40, 3, 3, 'F');
-            
-            doc.setTextColor(255, 255, 255);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-            doc.text('LA MEJOR OPCIÓN PARA TI ES', pageWidth / 2, yPos + 10, {align: 'center'});
-            
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(22);
-            doc.text('DRK', pageWidth / 2, yPos + 22, {align: 'center'});
-            
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(9);
-            doc.text('Ofrece el mayor ahorro consolidado con DRK ENERGÍA.', pageWidth / 2, yPos + 32, {align: 'center'});
-            
-            yPos += 50;
-            
-            // 3 COLUMNAS
-            const col1X = margin;
-            const col2X = margin + 65;
-            const col3X = margin + 130;
-            
-            // Columna 1: TU FACTURA ACTUAL
+            // Columna 1: ACTUAL
             doc.setTextColor(40, 50, 60);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(10);
-            doc.text('TU FACTURA ACTUAL', col1X, yPos);
-            yPos += 8;
-            
-            const factMes = totalCliente * 30 / dias;
+            doc.text('TU FACTURA ACTUAL', 12, y);
+            y += 8;
             doc.setTextColor(220, 38, 38);
             doc.setFontSize(16);
-            doc.text(eur(factMes), col1X, yPos);
-            
-            // Línea tachada
-            const tW = doc.getTextWidth(eur(factMes));
-            doc.setDrawColor(220, 38, 38);
+            doc.text(eur(factMes), 12, y);
             doc.setLineWidth(1.5);
-            doc.line(col1X, yPos - 4, col1X + tW, yPos - 4);
-            
-            yPos += 5;
+            doc.line(12, y - 4, 12 + doc.getTextWidth(eur(factMes)), y - 4);
+            y += 5;
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7);
             doc.setTextColor(100, 110, 120);
-            doc.text('Total Periodo (' + dias + ' días)', col1X, yPos);
-            
-            yPos += 8;
-            const factAnio = totalCliente * 365 / dias;
+            doc.text('Total Periodo (' + dias + ' días)', 12, y);
+            y += 8;
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(14);
             doc.setTextColor(220, 38, 38);
-            doc.text(eur(factAnio) + '/año', col1X, yPos);
+            doc.text(eur(factAnio) + '/año', 12, y);
+            doc.line(12, y - 4, 12 + doc.getTextWidth(eur(factAnio) + '/año'), y - 4);
             
-            const tW2 = doc.getTextWidth(eur(factAnio) + '/año');
-            doc.line(col1X, yPos - 4, col1X + tW2, yPos - 4);
+            y -= 21;
             
-            yPos -= 21;
-            
-            // Columna 2: TU AHORRO ANUAL FIJO
+            // Columna 2: FIJO
             doc.setFillColor(107, 125, 142);
-            doc.roundedRect(col2X - 2, yPos - 7, 63, 10, 2, 2, 'F');
-            
+            doc.roundedRect(75, y - 7, 63, 10, 2, 2, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(8);
-            doc.text('TU AHORRO ANUAL FIJO', col2X + 31, yPos - 1, {align: 'center'});
-            
-            yPos += 8;
+            doc.text('TU AHORRO ANUAL FIJO', 106, y - 1, { align: 'center' });
+            y += 8;
             doc.setTextColor(76, 175, 80);
             doc.setFontSize(20);
-            doc.text(eur(resFijo.ahorro_anual), col2X + 31, yPos, {align: 'center'});
-            
-            yPos += 8;
+            doc.text(eur(resFijo.ahorro_anual), 106, y, { align: 'center' });
+            y += 8;
             doc.setTextColor(100, 110, 120);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
-            doc.text('TU NUEVO COSTE DRK', col2X + 31, yPos, {align: 'center'});
-            
-            yPos += 6;
-            const fijoMes = resFijo.total * 30 / dias;
+            doc.text('TU NUEVO COSTE DRK', 106, y, { align: 'center' });
+            y += 6;
             doc.setTextColor(59, 130, 246);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(14);
-            doc.text(eur(fijoMes) + '/mes', col2X + 31, yPos, {align: 'center'});
-            
-            yPos += 5;
+            doc.text(eur(fijoMes) + '/mes', 106, y, { align: 'center' });
+            y += 5;
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7);
             doc.setTextColor(100, 110, 120);
-            doc.text('Estimado Mensual', col2X + 31, yPos, {align: 'center'});
-            
-            yPos += 7;
-            const fijoAnio = resFijo.total * 365 / dias;
+            doc.text('Estimado Mensual', 106, y, { align: 'center' });
+            y += 7;
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
             doc.setTextColor(59, 130, 246);
-            doc.text(eur(fijoAnio) + '/año', col2X + 31, yPos, {align: 'center'});
+            doc.text(eur(fijoAnio) + '/año', 106, y, { align: 'center' });
             
-            yPos -= 38;
+            y -= 38;
             
-            // Columna 3: TU AHORRO ANUAL INDEXADO
+            // Columna 3: INDEXADO
             doc.setFillColor(107, 125, 142);
-            doc.roundedRect(col3X - 2, yPos - 7, 68, 10, 2, 2, 'F');
-            
+            doc.roundedRect(140, y - 7, 68, 10, 2, 2, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(8);
-            doc.text('TU AHORRO ANUAL INDEXADO', col3X + 34, yPos - 1, {align: 'center'});
-            
-            yPos += 8;
+            doc.text('TU AHORRO ANUAL INDEXADO', 174, y - 1, { align: 'center' });
+            y += 8;
             doc.setTextColor(76, 175, 80);
             doc.setFontSize(20);
-            doc.text(eur(resIndexed.ahorro_anual), col3X + 34, yPos, {align: 'center'});
-            
-            yPos += 8;
+            doc.text(eur(resIndexed.ahorro_anual), 174, y, { align: 'center' });
+            y += 8;
             doc.setTextColor(100, 110, 120);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
-            doc.text('TU NUEVO COSTE DRK', col3X + 34, yPos, {align: 'center'});
-            
-            yPos += 6;
-            const indexMes = resIndexed.total * 30 / dias;
+            doc.text('TU NUEVO COSTE DRK', 174, y, { align: 'center' });
+            y += 6;
             doc.setTextColor(76, 175, 80);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(14);
-            doc.text(eur(indexMes) + '/mes', col3X + 34, yPos, {align: 'center'});
-            
-            yPos += 5;
+            doc.text(eur(indexMes) + '/mes', 174, y, { align: 'center' });
+            y += 5;
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7);
             doc.setTextColor(100, 110, 120);
-            doc.text('Estimado Mensual', col3X + 34, yPos, {align: 'center'});
-            
-            yPos += 7;
-            const indexAnio = resIndexed.total * 365 / dias;
+            doc.text('Estimado Mensual', 174, y, { align: 'center' });
+            y += 7;
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
             doc.setTextColor(76, 175, 80);
-            doc.text(eur(indexAnio) + '/año', col3X + 34, yPos, {align: 'center'});
+            doc.text(eur(indexAnio) + '/año', 174, y, { align: 'center' });
             
-            // PÁGINAS 3-4: VACÍAS
+            // PÁGINAS 3 y 4: VACÍAS
             doc.addPage();
             doc.addPage();
             
-            // Footer
-            doc.setFont('helvetica', 'italic');
-            doc.setFontSize(7);
-            doc.setTextColor(120, 120, 120);
-            doc.text('Documento generado automáticamente - DRK Energía', pageWidth / 2, 285, {align: 'center'});
-            doc.text('Fecha: ' + new Date().toLocaleDateString('es-ES'), pageWidth / 2, 290, {align: 'center'});
-            
-            for (let i = 1; i <= doc.internal.getNumberOfPages(); i++) {
-                doc.setPage(i);
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(8);
-                doc.setTextColor(120, 120, 120);
-                doc.text('Pág. ' + i + ' de ' + doc.internal.getNumberOfPages(), pageWidth - margin, 290, {align: 'right'});
-            }
-            
-            doc.save('Comparativa_GAS_Dual_' + currentGasTariff + '_' + new Date().toISOString().slice(0,10) + '.pdf');
-            window.showMessageModal("✅ PDF comparativo generado", false);
+            doc.save('GAS_Dual_' + currentGasTariff + '.pdf');
+            window.showMessageModal("✅ PDF generado", false);
         }
     </script>
 </body>
