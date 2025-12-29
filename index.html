@@ -12271,70 +12271,78 @@
             const pageHeight = 297;
             let y = 0;
             
-            // HEADER VERDE OLIVA CON RAYAS (más grande)
+            // HEADER VERDE OLIVA CON RAYAS (estética mejorada)
             doc.setFillColor(119, 132, 109);
             doc.rect(0, 0, pageWidth, 55, 'F');
             
-            // Rayas verticales más definidas
-            doc.setDrawColor(135, 150, 125);
-            doc.setLineWidth(0.4);
-            for (let i = 0; i < pageWidth; i += 2) {
+            // Rayas verticales sutiles y elegantes
+            doc.setDrawColor(130, 145, 120);
+            doc.setLineWidth(0.5);
+            for (let i = 0; i < pageWidth; i += 2.5) {
                 doc.line(i, 0, i, 55);
             }
             
-            // Logo taza de café MEJORADO (más grande y detallado)
-            const logoX = 35;
-            const logoY = 28;
+            // LOGO TAZA DE CAFÉ PROFESIONAL
+            const logoX = 40;
+            const logoY = 27.5;
             
-            // Taza (cuerpo principal)
-            doc.setFillColor(75, 85, 70);
-            doc.roundedRect(logoX - 11, logoY - 10, 22, 18, 2, 2, 'F');
+            // Cuerpo de la taza (rectangular con bordes redondeados)
+            doc.setFillColor(70, 80, 65);
+            doc.roundedRect(logoX - 12, logoY - 8, 24, 16, 2, 2, 'F');
             
-            // Interior de la taza (café)
-            doc.setFillColor(101, 113, 95);
-            doc.roundedRect(logoX - 9, logoY - 8, 18, 12, 1.5, 1.5, 'F');
+            // Interior de la taza (café) - color más claro
+            doc.setFillColor(95, 108, 90);
+            doc.roundedRect(logoX - 10, logoY - 6, 20, 10, 1.5, 1.5, 'F');
             
-            // Asa de la taza
-            doc.setDrawColor(75, 85, 70);
-            doc.setLineWidth(2.5);
-            // Asa simplificada
-            doc.line(logoX + 11, logoY - 4, logoX + 15, logoY - 2);
-            doc.line(logoX + 15, logoY - 2, logoX + 15, logoY + 2);
-            doc.line(logoX + 15, logoY + 2, logoX + 11, logoY + 4);
+            // Asa de la taza (líneas elegantes)
+            doc.setDrawColor(70, 80, 65);
+            doc.setLineWidth(2.2);
+            doc.line(logoX + 12, logoY - 3, logoX + 16, logoY - 1);
+            doc.line(logoX + 16, logoY - 1, logoX + 16.5, logoY + 2);
+            doc.line(logoX + 16.5, logoY + 2, logoX + 12, logoY + 3);
             
-            // Vapor (3 líneas curvas amarillas)
-            doc.setDrawColor(255, 200, 0);
-            doc.setLineWidth(1.8);
-            doc.line(logoX - 3, logoY - 13, logoX - 2, logoY - 17);
-            doc.line(logoX + 0, logoY - 13, logoX + 0, logoY - 18);
-            doc.line(logoX + 3, logoY - 13, logoX + 2, logoY - 17);
+            // Vapor (líneas sutiles amarillas/naranjas)
+            doc.setDrawColor(255, 190, 50);
+            doc.setLineWidth(1.5);
             
-            // Texto "POWER CUP ENERGÍA"
+            // Vapor izquierda
+            doc.line(logoX - 4, logoY - 10, logoX - 3, logoY - 14);
+            
+            // Vapor centro
+            doc.line(logoX, logoY - 10, logoX, logoY - 15);
+            
+            // Vapor derecha  
+            doc.line(logoX + 4, logoY - 10, logoX + 3, logoY - 14);
+            
+            // TEXTO "POWER CUP ENERGÍA"
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
+            doc.setFontSize(24);
+            doc.text('POWER CUP', logoX + 30, 20);
+            
             doc.setFontSize(22);
-            doc.text('POWER CUP', logoX + 28, 22);
+            doc.text('ENERGÍA', logoX + 30, 32);
             
-            doc.setFontSize(20);
-            doc.text('ENERGÍA', logoX + 28, 33);
-            
+            // Subtítulo descriptivo
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7.5);
-            doc.text('Liderando el ahorro y la', logoX + 28, 40);
-            doc.text('eficiencia energética.', logoX + 28, 44);
+            doc.setTextColor(230, 240, 230);
+            doc.text('Liderando el ahorro y la', logoX + 30, 40);
+            doc.text('eficiencia energética.', logoX + 30, 44.5);
             
-            // Texto derecha del header
+            // TEXTO DERECHA DEL HEADER
+            doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(10);
-            doc.text('ESTUDIO DE AHORRO', pageWidth - 15, 18, { align: 'right' });
+            doc.setFontSize(11);
+            doc.text('ESTUDIO DE AHORRO', pageWidth - 12, 16, { align: 'right' });
             
-            doc.setTextColor(220, 235, 220);
-            doc.setFontSize(12);
-            doc.text('COMPARATIVA', pageWidth - 15, 28, { align: 'right' });
+            doc.setTextColor(215, 230, 215);
+            doc.setFontSize(13);
+            doc.text('COMPARATIVA', pageWidth - 12, 27, { align: 'right' });
             
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(10);
-            doc.text('PROFESIONAL', pageWidth - 15, 37, { align: 'right' });
+            doc.setFontSize(11);
+            doc.text('PROFESIONAL', pageWidth - 12, 37, { align: 'right' });
             
             // Banner verde "ESTUDIO DE AHORRO"
             y = 63;
@@ -12594,70 +12602,89 @@
             const pageWidth = 210;
             let y = 0;
             
-            // Header verde oliva con rayas (más grande)
+            // HEADER VERDE OLIVA CON RAYAS (estética mejorada - Dual)
             doc.setFillColor(119, 132, 109);
             doc.rect(0, 0, pageWidth, 55, 'F');
             
-            // Rayas verticales más definidas
-            doc.setDrawColor(135, 150, 125);
-            doc.setLineWidth(0.4);
-            for (let i = 0; i < pageWidth; i += 2) {
+            // Rayas verticales sutiles y elegantes
+            doc.setDrawColor(130, 145, 120);
+            doc.setLineWidth(0.5);
+            for (let i = 0; i < pageWidth; i += 2.5) {
                 doc.line(i, 0, i, 55);
             }
             
-            // Logo taza de café MEJORADO (más grande y detallado)
-            const logoX = 35;
-            const logoY = 28;
+            // LOGO TAZA DE CAFÉ PROFESIONAL
+            const logoX = 40;
+            const logoY = 27.5;
             
-            // Taza (cuerpo principal)
-            doc.setFillColor(75, 85, 70);
-            doc.roundedRect(logoX - 11, logoY - 10, 22, 18, 2, 2, 'F');
+            // Cuerpo de la taza (rectangular con bordes redondeados)
+            doc.setFillColor(70, 80, 65);
+            doc.roundedRect(logoX - 12, logoY - 8, 24, 16, 2, 2, 'F');
             
-            // Interior de la taza (café)
-            doc.setFillColor(101, 113, 95);
-            doc.roundedRect(logoX - 9, logoY - 8, 18, 12, 1.5, 1.5, 'F');
+            // Interior de la taza (café) - color más claro
+            doc.setFillColor(95, 108, 90);
+            doc.roundedRect(logoX - 10, logoY - 6, 20, 10, 1.5, 1.5, 'F');
             
-            // Asa de la taza
-            doc.setDrawColor(75, 85, 70);
-            doc.setLineWidth(2.5);
-            // Asa simplificada
-            doc.line(logoX + 11, logoY - 4, logoX + 15, logoY - 2);
-            doc.line(logoX + 15, logoY - 2, logoX + 15, logoY + 2);
-            doc.line(logoX + 15, logoY + 2, logoX + 11, logoY + 4);
+            // Asa de la taza (líneas elegantes)
+            doc.setDrawColor(70, 80, 65);
+            doc.setLineWidth(2.2);
+            doc.line(logoX + 12, logoY - 3, logoX + 16, logoY - 1);
+            doc.line(logoX + 16, logoY - 1, logoX + 16.5, logoY + 2);
+            doc.line(logoX + 16.5, logoY + 2, logoX + 12, logoY + 3);
             
-            // Vapor (3 líneas curvas amarillas)
-            doc.setDrawColor(255, 200, 0);
-            doc.setLineWidth(1.8);
-            doc.line(logoX - 3, logoY - 13, logoX - 2, logoY - 17);
-            doc.line(logoX + 0, logoY - 13, logoX + 0, logoY - 18);
-            doc.line(logoX + 3, logoY - 13, logoX + 2, logoY - 17);
+            // Vapor (líneas sutiles amarillas/naranjas)
+            doc.setDrawColor(255, 190, 50);
+            doc.setLineWidth(1.5);
             
-            // Texto "POWER CUP ENERGÍA"
+            // Vapor izquierda
+            doc.line(logoX - 4, logoY - 10, logoX - 3, logoY - 14);
+            
+            // Vapor centro
+            doc.line(logoX, logoY - 10, logoX, logoY - 15);
+            
+            // Vapor derecha  
+            doc.line(logoX + 4, logoY - 10, logoX + 3, logoY - 14);
+            
+            // TEXTO "POWER CUP ENERGÍA"
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
+            doc.setFontSize(24);
+            doc.text('POWER CUP', logoX + 30, 20);
+            
             doc.setFontSize(22);
-            doc.text('POWER CUP', logoX + 28, 22);
+            doc.text('ENERGÍA', logoX + 30, 32);
             
-            doc.setFontSize(20);
-            doc.text('ENERGÍA', logoX + 28, 33);
-            
+            // Subtítulo descriptivo
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7.5);
-            doc.text('Liderando el ahorro y la', logoX + 28, 40);
-            doc.text('eficiencia energética.', logoX + 28, 44);
+            doc.setTextColor(230, 240, 230);
+            doc.text('Liderando el ahorro y la', logoX + 30, 40);
+            doc.text('eficiencia energética.', logoX + 30, 44.5);
+            
+            // TEXTO DERECHA DEL HEADER
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.text('ESTUDIO DE AHORRO', pageWidth - 12, 16, { align: 'right' });
+            
+            doc.setTextColor(215, 230, 215);
+            doc.setFontSize(13);
+            doc.text('COMPARATIVA', pageWidth - 12, 27, { align: 'right' });
+            
+            doc.setTextColor(255, 255, 255);
             
             // Texto derecha del header
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(10);
-            doc.text('ESTUDIO DE AHORRO', pageWidth - 15, 18, { align: 'right' });
+            doc.setFontSize(11);
+            doc.text('ESTUDIO DE AHORRO', pageWidth - 12, 16, { align: 'right' });
             
-            doc.setTextColor(220, 235, 220);
-            doc.setFontSize(12);
-            doc.text('COMPARATIVA', pageWidth - 15, 28, { align: 'right' });
+            doc.setTextColor(215, 230, 215);
+            doc.setFontSize(13);
+            doc.text('COMPARATIVA', pageWidth - 12, 27, { align: 'right' });
             
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(10);
-            doc.text('PROFESIONAL', pageWidth - 15, 37, { align: 'right' });
+            doc.setFontSize(11);
+            doc.text('PROFESIONAL', pageWidth - 12, 37, { align: 'right' });
             
             
             // Banner verde "ESTUDIO DE AHORRO"
