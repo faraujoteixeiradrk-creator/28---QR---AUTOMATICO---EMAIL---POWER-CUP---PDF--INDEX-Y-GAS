@@ -11819,22 +11819,28 @@
             
             modal.innerHTML = `
                 <div style="max-width: 900px; margin: 0 auto; position: relative;">
-                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <h2 style="margin: 0; color: #0c4a6e;">📧 HTML para Email - GAS</h2>
-                            <button onclick="closeHTMLPreview()" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Cerrar</button>
+                            <button onclick="closeHTMLPreview()" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">✕ Cerrar</button>
                         </div>
-                        <p style="margin: 0 0 15px 0; color: #64748b; font-size: 14px;">
-                            <strong>Instrucciones:</strong> Haz clic en "Copiar HTML" y luego pega (Ctrl+V) directamente en tu correo electrónico.
-                            La imagen aparecerá automáticamente formateada.
+                        <p style="margin: 0 0 15px 0; color: #64748b; font-size: 14px; line-height: 1.6;">
+                            <strong>📋 Instrucciones:</strong><br>
+                            <span style="color: #16a34a; font-weight: bold;">OPCIÓN 1:</span> Haz clic en "Copiar HTML" (automático)<br>
+                            <span style="color: #f59e0b; font-weight: bold;">OPCIÓN 2:</span> Si no funciona, usa "Seleccionar Todo" y luego Ctrl+C
                         </p>
-                        <button onclick="copyHTMLToClipboard()" style="background: #0ea5e9; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%;">
-                            📋 Copiar HTML
-                        </button>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <button onclick="copyHTMLToClipboard()" style="background: #0ea5e9; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                                📋 Copiar HTML
+                            </button>
+                            <button onclick="selectAllContent()" style="background: #f59e0b; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                                ✨ Seleccionar Todo
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- Preview del HTML -->
-                    <div id="html-preview-content" style="background: white; padding: 20px; border-radius: 12px;">
+                    <div id="html-preview-content" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
                         ${htmlContent}
                     </div>
                 </div>
@@ -11845,6 +11851,34 @@
             // Guardar el HTML content para copiar
             window.currentHTMLContent = htmlContent;
         }
+        
+        // Función para seleccionar todo el contenido
+        window.selectAllContent = function() {
+            const contentDiv = document.getElementById('html-preview-content');
+            if (!contentDiv) return;
+            
+            const range = document.createRange();
+            range.selectNodeContents(contentDiv);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            // Cambiar el botón para indicar que ya está seleccionado
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✅ ¡Seleccionado! Ahora Ctrl+C';
+            btn.style.background = '#16a34a';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#f59e0b';
+            }, 3000);
+            
+            // Mostrar alerta con instrucciones
+            setTimeout(() => {
+                alert('✅ Contenido seleccionado\n\n📋 Ahora presiona:\n• Ctrl+C (Windows/Linux)\n• Cmd+C (Mac)\n\nLuego pega en tu correo con Ctrl+V');
+            }, 100);
+        };
         
         // Función para cerrar el preview
         window.closeHTMLPreview = function() {
@@ -11859,28 +11893,72 @@
             try {
                 const htmlContent = window.currentHTMLContent;
                 
-                // Crear blob HTML
-                const blob = new Blob([htmlContent], { type: 'text/html' });
-                const clipboardItem = new ClipboardItem({
-                    'text/html': blob
-                });
+                // MÉTODO 1: Intentar con ClipboardItem (navegadores modernos)
+                try {
+                    const blob = new Blob([htmlContent], { type: 'text/html' });
+                    const clipboardItem = new ClipboardItem({
+                        'text/html': blob
+                    });
+                    await navigator.clipboard.write([clipboardItem]);
+                    
+                    // Mostrar mensaje de éxito
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ ¡Copiado! Pega en tu email';
+                    btn.style.background = '#16a34a';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '#0ea5e9';
+                    }, 3000);
+                    
+                    return;
+                } catch (clipboardError) {
+                    console.log('ClipboardItem falló, intentando método alternativo...');
+                }
                 
-                await navigator.clipboard.write([clipboardItem]);
+                // MÉTODO 2: Usar execCommand (más compatible)
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                tempDiv.style.position = 'fixed';
+                tempDiv.style.left = '-9999px';
+                tempDiv.contentEditable = true;
+                document.body.appendChild(tempDiv);
                 
-                // Mostrar mensaje de éxito
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = '✅ ¡Copiado! Pega en tu email';
-                btn.style.background = '#16a34a';
+                // Seleccionar el contenido
+                const range = document.createRange();
+                range.selectNodeContents(tempDiv);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
                 
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = '#0ea5e9';
-                }, 3000);
+                // Copiar
+                const success = document.execCommand('copy');
+                
+                // Limpiar
+                selection.removeAllRanges();
+                document.body.removeChild(tempDiv);
+                
+                if (success) {
+                    // Mostrar mensaje de éxito
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ ¡Copiado! Pega en tu email';
+                    btn.style.background = '#16a34a';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '#0ea5e9';
+                    }, 3000);
+                } else {
+                    throw new Error('execCommand falló');
+                }
                 
             } catch (err) {
                 console.error('Error al copiar:', err);
-                alert('Error al copiar. Por favor, intenta seleccionar manualmente el contenido y copiar.');
+                
+                // Mostrar instrucciones al usuario
+                alert('No se pudo copiar automáticamente.\n\n✅ SOLUCIÓN:\n\n1. Haz clic derecho sobre el contenido abajo\n2. Selecciona "Copiar"\n3. Pega en tu correo electrónico\n\nO usa Ctrl+A para seleccionar todo y luego Ctrl+C para copiar.');
             }
         };
 
